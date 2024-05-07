@@ -26,8 +26,8 @@ public class GPTConfig {
     public final static double TOP_P = 0.1;
 
 
-    //타임아웃 시간 설정
-    public final static Duration TIME_OUT = Duration.ofSeconds(300);
+//    //타임아웃 시간 설정
+//    public final static Duration TIME_OUT = Duration.ofSeconds(300);
 
     //발급받은 토큰
 

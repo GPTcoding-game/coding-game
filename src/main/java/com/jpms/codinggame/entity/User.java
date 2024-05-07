@@ -27,6 +27,9 @@ public class User {
     @Column
     private String email;
 
+    @Column
+    private String address;
+
     @Column //하루에 한번 초기화
     private int score;
 

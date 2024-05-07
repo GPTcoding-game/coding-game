@@ -34,6 +34,6 @@ public class GPTConfig {
     private String token;
 
     @Bean
-    public OpenAiService openAiService(){return new OpenAiService(token,TIME_OUT)};
+    public OpenAiService openAiService(){return new OpenAiService(token,TIME_OUT);}
 
 }

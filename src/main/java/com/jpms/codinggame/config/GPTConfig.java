@@ -31,9 +31,7 @@ public class GPTConfig {
 
     //발급받은 토큰
 
-    private String token;
-
-    @Bean
-    public OpenAiService openAiService(){return new OpenAiService(token,TIME_OUT);}
+//    @Bean
+//    public OpenAiService openAiService(){return new OpenAiService(token,TIME_OUT);}
 
 }

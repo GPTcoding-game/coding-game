@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Builder
 @Getter
 @AllArgsConstructor
@@ -34,4 +36,7 @@ public class Question {
     @Column
     @Enumerated(EnumType.STRING)
     private QuestionType questionType;
+
+    @OneToMany(mappedBy = "question")
+    private List<Qna> qnaList;
 }

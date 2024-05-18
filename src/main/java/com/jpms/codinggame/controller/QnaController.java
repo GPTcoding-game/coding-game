@@ -50,7 +50,7 @@ public class QnaController {
     public ApiResponse<ResponseDto> modifyQna(
             @PathVariable("questionId") Long questionId,
             @PathVariable("qnaId") Long qnaId,
-            QnaModifyRequestDto dto
+            @RequestBody QnaModifyRequestDto dto
     ){
         qnaService.modifyQna(qnaId,questionId,dto);
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("질문 수정 완료"));

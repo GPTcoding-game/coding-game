@@ -20,14 +20,17 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
+    private LocalDate date;
+
+    @Column
+    private int questionNo;
+
     @Column(columnDefinition = "TEXT")
     private String content;
 
     @Column
     private int level;
-
-    @Column
-    private LocalDate date;
 
     @Column(columnDefinition = "TEXT")
     private String answer;

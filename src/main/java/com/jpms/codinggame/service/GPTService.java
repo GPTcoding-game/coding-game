@@ -48,9 +48,9 @@ public class GPTService {
             question = matcher.group(1).trim();
             answer = matcher.group(2).trim();
         }
-//        else{
-//
-//        }
+
+        //보완로직
+        //선행학습
 
         Question question1 = questionRepository.save(Question.builder().
                 content(question).

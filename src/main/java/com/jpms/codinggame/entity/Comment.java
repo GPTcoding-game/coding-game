@@ -1,21 +1,17 @@
 package com.jpms.codinggame.entity;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "comment")
 @Builder
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
-@Table(name = "qna")
-@Entity
-public class Qna {
+public class Comment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,16 +20,14 @@ public class Qna {
     private String content;
 
     @Column
-    private String title;
-
-    @Column
     private LocalDateTime time;
 
-    @ManyToOne
-    @JoinColumn(name="question_id")
-    private Question question;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
-    @JoinColumn(name="user_id")
-    private User user;
+    @JoinColumn(name = "qna_id")
+    private Qna qna;
+
 }

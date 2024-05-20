@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @Entity
 @Table(name = "user")
@@ -18,7 +20,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(unique = true)
     private String userName;
 
     @Column
@@ -27,12 +29,19 @@ public class User {
     @Column
     private String email;
 
-    @Column //하루에 한번 초기화
+    @Column //누적점수
     private int score;
 
     @Column
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column
+    private String address;
 
+    @OneToMany(mappedBy = "user")
+    private List<Qna> qnaList;
+
+    @OneToMany(mappedBy = "user")
+    private List<Comment> commentList;
 }

@@ -9,11 +9,14 @@ import java.util.List;
 @Data
 public class GPTRequestDto {
     private String model;
-    private List<QuestionDto> questionDtoList;
+    private List<MessageDto> messages;
 
-    public GPTRequestDto(String model, String prompt) {
+    private int max_tokens;
+
+    public GPTRequestDto(String model, String prompt, int max_tokens) {
         this.model = model;
-        this.questionDtoList =  new ArrayList<>();
-        this.questionDtoList.add(new QuestionDto("user", prompt));
+        this.messages =  new ArrayList<>();
+        this.messages.add(new MessageDto("user", prompt));
+        this.max_tokens = 2000;
     }
 }

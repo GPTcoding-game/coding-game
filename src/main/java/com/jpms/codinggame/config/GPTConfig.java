@@ -1,8 +1,8 @@
 package com.jpms.codinggame.config;
 
 import com.theokanning.openai.service.OpenAiService;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,6 +30,7 @@ public class GPTConfig {
     public final static Duration TIME_OUT = Duration.ofSeconds(300);
 
     //발급받은 토큰
+    @Value("${openai.api.key}")
     private String token;
 
     @Bean

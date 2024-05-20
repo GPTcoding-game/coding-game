@@ -18,7 +18,7 @@ public class GPTResponseDto {
     @AllArgsConstructor
     public static class Choice {
         private int index;
-        private QuestionDto message;
+        private MessageDto message;
 
     }
 }

@@ -29,7 +29,7 @@ public class User {
     @Column
     private String email;
 
-    @Column //하루에 한번 초기화
+    @Column //누적점수
     private int score;
 
     @Column

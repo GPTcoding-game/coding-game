@@ -106,7 +106,7 @@ public class GPTService {
             modifiedPrompt.append("\n\n주의: 답변은 '문제: ... 답: ...' 형식으로 작성해 주세요.");
         }
 
-        // 답변 길이가 100자를 넘는 경우
+        // 답변 길이가 50자를 넘는 경우
         if (answer != null && answer.length() > 50) {
             modifiedPrompt.append("\n\n답변의 길이는 50자를 넘지 않도록 해주세요.");
         }

@@ -6,7 +6,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+
+import java.time.LocalDate;
 import java.util.List;
+
 
 @Builder
 @Getter
@@ -21,12 +24,18 @@ public class Question {
     private Long id;
 
     @Column
+    private LocalDate date;
+
+    @Column
+    private int questionNo;
+
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Column
     private int level;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String answer;
 
     @Column

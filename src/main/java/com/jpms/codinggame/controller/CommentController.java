@@ -1,8 +1,8 @@
 package com.jpms.codinggame.controller;
 
-import com.jpms.codinggame.dto.CommentCreateRequestDto;
-import com.jpms.codinggame.dto.CommentModifyRequestDto;
-import com.jpms.codinggame.dto.CommentResponseDto;
+import com.jpms.codinggame.dto.CommentCreateReqDto;
+import com.jpms.codinggame.dto.CommentModifyReqDto;
+import com.jpms.codinggame.dto.CommentResDto;
 import com.jpms.codinggame.global.dto.ApiResponse;
 import com.jpms.codinggame.global.dto.ResponseDto;
 import com.jpms.codinggame.service.CommentService;
@@ -24,7 +24,7 @@ public class CommentController {
     @PostMapping("/qna/{}/comment")
     public ApiResponse<ResponseDto> createComment(
             @PathVariable("qnaId") Long qnaId,
-            @RequestBody CommentCreateRequestDto dto
+            @RequestBody CommentCreateReqDto dto
             ){
         commentService.createComment(qnaId,dto);
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("댓글 생성 완료"));
@@ -32,7 +32,7 @@ public class CommentController {
 
     //답글(리스트) 가져오기 요청
     @GetMapping("/qna/{}/comments")
-    public ApiResponse<List<CommentResponseDto>> getCommentList(
+    public ApiResponse<List<CommentResDto>> getCommentList(
             @PathVariable("qnaId") Long qnaId
     ){
         return new ApiResponse<>(HttpStatus.OK,commentService.getCommentList(qnaId));
@@ -52,7 +52,7 @@ public class CommentController {
     public ApiResponse<ResponseDto> modifyComment(
             @PathVariable("qnaId") Long qnaId,
             @PathVariable("commentId") Long commentId,
-            @RequestBody CommentModifyRequestDto dto
+            @RequestBody CommentModifyReqDto dto
             ){
         commentService.modifyComment(qnaId,commentId,dto);
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("댓글 수정 완료"));

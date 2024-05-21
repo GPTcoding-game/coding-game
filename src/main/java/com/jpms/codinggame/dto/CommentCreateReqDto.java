@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-public class QnaModifyRequestDto {
-    private String title;
+public class CommentCreateReqDto {
     private String content;
     private LocalDateTime time;
 }

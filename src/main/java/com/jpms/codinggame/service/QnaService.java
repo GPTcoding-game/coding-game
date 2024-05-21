@@ -1,18 +1,15 @@
 package com.jpms.codinggame.service;
 
-import com.jpms.codinggame.dto.QnaCreateRequestDto;
-import com.jpms.codinggame.dto.QnaModifyRequestDto;
-import com.jpms.codinggame.dto.QnaResponseDto;
+import com.jpms.codinggame.dto.QnaCreateReqDto;
+import com.jpms.codinggame.dto.QnaModifyReqDto;
+import com.jpms.codinggame.dto.QnaResDto;
 import com.jpms.codinggame.entity.Qna;
-import com.jpms.codinggame.entity.Question;
 import com.jpms.codinggame.repository.QnaRepository;
 import com.jpms.codinggame.repository.QuestionRepository;
-import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +23,7 @@ public class QnaService {
     //생성
     public void createQna(
             Long questionId,
-            QnaCreateRequestDto dto){
+            QnaCreateReqDto dto){
         //todo Qna 객체에 작성자(username)이 있어야 할 것 같은데, 이거는 Authentication 객체 안에 있는 username 을 끌어와야 할 것 같다
         //일단 없이 진행하기
         qnaRepository.save(Qna
@@ -44,7 +41,7 @@ public class QnaService {
     public void modifyQna(
             Long qnaId,
             Long questionId,
-            QnaModifyRequestDto dto){
+            QnaModifyReqDto dto){
         Qna qna = qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new);
         qnaRepository.save(Qna
                 .builder()
@@ -67,7 +64,7 @@ public class QnaService {
 
     //질문 전체 가져오기
     //page 형태로 변경하기
-    public List<QnaResponseDto> getQnaList(Long questionId){
+    public List<QnaResDto> getQnaList(Long questionId){
         //Question 존재 유무
         questionRepository.findById(questionId).orElseThrow(RuntimeException::new);
 
@@ -75,7 +72,7 @@ public class QnaService {
         List<Qna> qnaList = qnaRepository.findAllByQuestionId(questionId);
         return qnaList
                 .stream()
-                .map(qna -> QnaResponseDto
+                .map(qna -> QnaResDto
                         .builder()
                         .title(qna.getTitle())
                         .content(qna.getContent())
@@ -86,8 +83,8 @@ public class QnaService {
 
 
     //특정 질문 가져오기
-    public QnaResponseDto getQna(Long qnaId){
+    public QnaResDto getQna(Long qnaId){
         Qna qna = qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new);
-        return QnaResponseDto.fromEntity(qna);
+        return QnaResDto.fromEntity(qna);
     }
 }

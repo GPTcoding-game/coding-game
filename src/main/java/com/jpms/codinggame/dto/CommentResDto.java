@@ -10,12 +10,12 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-public class CommentResponseDto {
+public class CommentResDto {
     private String content;
     private LocalDateTime time;
 
-    static CommentResponseDto fromEntity(Comment comment){
-        return CommentResponseDto
+    static CommentResDto fromEntity(Comment comment){
+        return CommentResDto
                 .builder()
                 .content(comment.getContent())
                 .time(comment.getTime())

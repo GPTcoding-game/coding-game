@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-public class QnaResponseDto {
+public class QnaResDto {
     private String content;
     private String title;
     private LocalDateTime time;
 //    private String userName;
 
-    public static QnaResponseDto fromEntity(Qna qna){
-        return QnaResponseDto
+    public static QnaResDto fromEntity(Qna qna){
+        return QnaResDto
                 .builder()
                 .title(qna.getTitle())
                 .content(qna.getContent())

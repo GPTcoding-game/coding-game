@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 public class QnaResponseDto {
     private String content;
     private String title;
-    private LocalDateTime time;
+    private LocalDate time;
 //    private String userName;
 
     public static QnaResponseDto fromEntity(Qna qna){

@@ -24,7 +24,7 @@ public class GPTService {
     public String createPrompt(){
         String prompt = "자바 코딩 문제를 생성해 주세요. 주제는 자료구조 중 '스택'입니다.\n" +
                 "문제는 컴파일 시 결과를 물어보거나 코드 중 빈칸을 채우는 형식이어야 합니다.\n" +
-                "답변은 단답형으로, 100자를 넘지 않아야 합니다.\n" +
+                "답변은 단답형으로, 50자를 넘지 않아야 합니다.\n" +
                 "다음 형식을 따라 작성해 주세요:\n" +
                 "문제: [여기에 문제를 적어 주세요]\n" +
                 "답: [여기에 답을 적어 주세요]";
@@ -89,7 +89,7 @@ public class GPTService {
         if (answer == null) {
             return false;
         }
-        if (answer.length() > 100) {
+        if (answer.length() > 20) {
             return false;
         }
         if (answer.contains("```")) {
@@ -107,8 +107,8 @@ public class GPTService {
         }
 
         // 답변 길이가 100자를 넘는 경우
-        if (answer != null && answer.length() > 100) {
-            modifiedPrompt.append("\n\n답변의 길이는 100자를 넘지 않도록 해주세요.");
+        if (answer != null && answer.length() > 50) {
+            modifiedPrompt.append("\n\n답변의 길이는 50자를 넘지 않도록 해주세요.");
         }
 
         // 답변에 코드 블럭이 포함된 경우

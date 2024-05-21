@@ -34,7 +34,7 @@ public class QnaController {
     }
 
     //질문 삭제 요청
-    @DeleteMapping("/question/{}/qna/{}")
+    @DeleteMapping("/question/{questionId}/qna/{qnaId}")
     public ApiResponse<ResponseDto> deleteQna(
             @PathVariable("questionId") Long questionId,
             @PathVariable("qnaId") Long qnaId,
@@ -46,7 +46,7 @@ public class QnaController {
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("질문 삭제 완료"));
     }
     //질문 수정 요청
-    @PutMapping("/question/{}/qna/{}")
+    @PutMapping("/question/{questionId}/qna/{qnaId}")
     public ApiResponse<ResponseDto> modifyQna(
             @PathVariable("questionId") Long questionId,
             @PathVariable("qnaId") Long qnaId,
@@ -64,7 +64,7 @@ public class QnaController {
         return new ApiResponse<>(HttpStatus.OK,qnaService.getQnaList(questionId));
     }
 
-    @GetMapping("/question/{}/qna/{}")
+    @GetMapping("/question/{questionId}/qna/{qnaId}")
     public ApiResponse<QnaResponseDto> getQna(
             @PathVariable("questionId") Long questionId,
             @PathVariable("qnaId") Long qnaId

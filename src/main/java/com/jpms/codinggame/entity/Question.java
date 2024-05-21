@@ -6,7 +6,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+
 import java.time.LocalDate;
+import java.util.List;
+
 
 @Builder
 @Getter
@@ -42,4 +45,7 @@ public class Question {
     @Column
     @Enumerated(EnumType.STRING)
     private QuestionType questionType;
+
+    @OneToMany(mappedBy = "question")
+    private List<Qna> qnaList;
 }

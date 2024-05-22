@@ -48,4 +48,8 @@ public class Question {
 
     @OneToMany(mappedBy = "question")
     private List<Qna> qnaList;
+
+    @ManyToOne
+    @JoinColumn(name ="user_id")
+    private User user;
 }

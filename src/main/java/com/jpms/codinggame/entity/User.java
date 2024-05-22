@@ -33,6 +33,9 @@ public class User {
     private int score;
 
     @Column
+    private boolean isDone;
+
+    @Column
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -44,4 +47,7 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Comment> commentList;
+
+    @OneToMany(mappedBy = "user")
+    private List<Question> questionList;
 }

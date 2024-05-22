@@ -6,19 +6,18 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Builder
-public class QnaResponseDto {
+public class QnaResDto {
     private String content;
     private String title;
     private LocalDate time;
 //    private String userName;
 
-    public static QnaResponseDto fromEntity(Qna qna){
-        return QnaResponseDto
+    public static QnaResDto fromEntity(Qna qna){
+        return QnaResDto
                 .builder()
                 .title(qna.getTitle())
                 .content(qna.getContent())

@@ -2,7 +2,7 @@ package com.jpms.codinggame.controller;
 
 import com.jpms.codinggame.dto.QnaCreateRequestDto;
 import com.jpms.codinggame.dto.QnaModifyRequestDto;
-import com.jpms.codinggame.dto.QnaResponseDto;
+import com.jpms.codinggame.dto.QnaResDto;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.global.dto.ApiResponse;
 import com.jpms.codinggame.global.dto.ResponseDto;
@@ -58,14 +58,14 @@ public class QnaController {
 
     //질문 리스트 가져오기 요청
     @GetMapping("/question/{}/qnas")
-    public ApiResponse<List<QnaResponseDto>> getQnaList(
+    public ApiResponse<List<QnaResDto>> getQnaList(
             @PathVariable("questionId") Long questionId
     ){
         return new ApiResponse<>(HttpStatus.OK,qnaService.getQnaList(questionId));
     }
 
     @GetMapping("/question/{questionId}/qna/{qnaId}")
-    public ApiResponse<QnaResponseDto> getQna(
+    public ApiResponse<QnaResDto> getQna(
             @PathVariable("questionId") Long questionId,
             @PathVariable("qnaId") Long qnaId
     ){

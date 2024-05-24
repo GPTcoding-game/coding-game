@@ -39,7 +39,7 @@ public class CommentController {
     }
 
     //답글 삭제 요청
-    @DeleteMapping("/qna/{}/comment/{}")
+    @DeleteMapping("/qna/{qnaId}/comment/{commentId}")
     public ApiResponse<ResponseDto> deleteComment(
             @PathVariable("qnaId") Long qnaId,
             @PathVariable("commentId") Long commentId
@@ -48,7 +48,7 @@ public class CommentController {
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("댓글 삭제 완료"));
     }
     //답글 수정 요청
-    @PutMapping("/qna/{}/comment/{}")
+    @PutMapping("/qna/{qnaId}/comment/{commentId}")
     public ApiResponse<ResponseDto> modifyComment(
             @PathVariable("qnaId") Long qnaId,
             @PathVariable("commentId") Long commentId,

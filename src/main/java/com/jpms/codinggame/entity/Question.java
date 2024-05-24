@@ -33,6 +33,9 @@ public class Question {
     private String content;
 
     @Column
+    private String choices;
+
+    @Column
     private int level;
 
     @Column(columnDefinition = "TEXT")

@@ -36,8 +36,9 @@ public class GPTService {
     public Question createQuestion(String model, String apiURL, RestTemplate template) {
         String question = null;
         String answer = null;
+        String choices = null;
         String content = null;
-        Pattern pattern = Pattern.compile("문제:(.*)답:(.*)", Pattern.DOTALL);
+        Pattern pattern = Pattern.compile("문제:(.*)보기:(.*)답:(.*)", Pattern.DOTALL);
 
         //시도 횟수
         int attempt = 0;
@@ -48,7 +49,7 @@ public class GPTService {
             String prompt = createPrompt();
 
             if (attempt > 0) {
-                prompt = modifyPrompt(prompt, question, answer);
+                prompt = modifyPrompt(prompt, question, choices, answer);
             }
 
             int maxTokens = 2000;
@@ -60,7 +61,8 @@ public class GPTService {
 
             if (matcher.find()) {
                 question = matcher.group(1).trim();
-                answer = matcher.group(2).trim();
+                choices = matcher.group(2).trim();
+                answer = matcher.group(3).trim();
             } else {
                 question = null;
                 answer = null;
@@ -80,6 +82,7 @@ public class GPTService {
         Question question1 = questionRepository.save(Question.builder()
                 .content(question)
                 .answer(answer)
+                .choices(choices)
                 .date(today)
                 .questionNo(newQuestionNo)
                 .build());
@@ -91,7 +94,7 @@ public class GPTService {
         if (answer == null) {
             return false;
         }
-        if (answer.length() > 20) {
+        if (answer.length() > 1) {
             return false;
         }
         if (answer.contains("```")) {
@@ -100,17 +103,17 @@ public class GPTService {
         return true;
     }
 
-    private String modifyPrompt(String prompt, String question, String answer) {
+    private String modifyPrompt(String prompt, String question, String choices, String answer) {
         StringBuilder modifiedPrompt = new StringBuilder(prompt);
 
         // 답변의 형식이 잘못됬을 경우
-        if (question == null || answer == null) {
-            modifiedPrompt.append("\n\n주의: 답변은 '문제: ... 답: ...' 형식으로 작성해 주세요.");
+        if (question == null || choices == null ||answer == null) {
+            modifiedPrompt.append("\n\n주의: 답변은 '문제: ... 보기: ... 답: ...' 형식으로 작성해 주세요.");
         }
 
         // 답변 길이가 50자를 넘는 경우
-        if (answer != null && answer.length() > 50) {
-            modifiedPrompt.append("\n\n답변의 길이는 50자를 넘지 않도록 해주세요.");
+        if (answer != null && answer.length() > 1) {
+            modifiedPrompt.append("\n\n단일 숫자로 답을 표시 해주세요.");
         }
 
         // 답변에 코드 블럭이 포함된 경우

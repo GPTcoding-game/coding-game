@@ -32,8 +32,8 @@ public class Question {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column
-    private String choices;
+    @Column(columnDefinition = "TEXT")
+    private String choice;
 
     @Column
     private int level;

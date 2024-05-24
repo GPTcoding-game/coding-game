@@ -36,7 +36,7 @@ public class GPTService {
     public Question createQuestion(String model, String apiURL, RestTemplate template) {
         String question = null;
         String answer = null;
-        String choices = null;
+        String choice = null;
         String content = null;
         Pattern pattern = Pattern.compile("문제:(.*)보기:(.*)답:(.*)", Pattern.DOTALL);
 
@@ -49,7 +49,7 @@ public class GPTService {
             String prompt = createPrompt();
 
             if (attempt > 0) {
-                prompt = modifyPrompt(prompt, question, choices, answer);
+                prompt = modifyPrompt(prompt, question, choice, answer);
             }
 
             int maxTokens = 2000;
@@ -61,7 +61,7 @@ public class GPTService {
 
             if (matcher.find()) {
                 question = matcher.group(1).trim();
-                choices = matcher.group(2).trim();
+                choice = matcher.group(2).trim();
                 answer = matcher.group(3).trim();
             } else {
                 question = null;
@@ -82,7 +82,7 @@ public class GPTService {
         Question question1 = questionRepository.save(Question.builder()
                 .content(question)
                 .answer(answer)
-                .choices(choices)
+                .choice(choice)
                 .date(today)
                 .questionNo(newQuestionNo)
                 .build());

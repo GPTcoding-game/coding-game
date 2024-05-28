@@ -34,6 +34,10 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     implementation 'mysql:mysql-connector-java:8.0.25'
 
+    //jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
     //gpt
     implementation 'com.theokanning.openai-gpt3-java:api:0.18.2'

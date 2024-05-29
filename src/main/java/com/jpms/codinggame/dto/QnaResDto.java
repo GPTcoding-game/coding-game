@@ -5,19 +5,19 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
 @Builder
-public class QnaResponseDto {
+public class QnaResDto {
     private String content;
     private String title;
-    private LocalDateTime time;
+    private LocalDate time;
 //    private String userName;
 
-    public static QnaResponseDto fromEntity(Qna qna){
-        return QnaResponseDto
+    public static QnaResDto fromEntity(Qna qna){
+        return QnaResDto
                 .builder()
                 .title(qna.getTitle())
                 .content(qna.getContent())

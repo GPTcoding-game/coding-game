@@ -40,12 +40,12 @@ public class Question {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private LanguageType languageType;
-
-    @Column
-    @Enumerated(EnumType.STRING)
     private QuestionType questionType;
 
     @OneToMany(mappedBy = "question")
     private List<Qna> qnaList;
+
+    @ManyToOne
+    @JoinColumn(name ="user_id")
+    private User user;
 }

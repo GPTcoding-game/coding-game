@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -12,5 +13,5 @@ import java.time.LocalDateTime;
 public class QnaModifyRequestDto {
     private String title;
     private String content;
-    private LocalDateTime time;
+    private LocalDate time;
 }

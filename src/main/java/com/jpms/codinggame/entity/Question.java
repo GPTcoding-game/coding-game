@@ -40,10 +40,6 @@ public class Question {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private LanguageType languageType;
-
-    @Column
-    @Enumerated(EnumType.STRING)
     private QuestionType questionType;
 
     @OneToMany(mappedBy = "question")

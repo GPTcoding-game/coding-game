@@ -4,14 +4,14 @@ import com.jpms.codinggame.dto.LogInDto;
 import com.jpms.codinggame.entity.JwtToken;
 import com.jpms.codinggame.entity.Role;
 import com.jpms.codinggame.entity.User;
+import com.jpms.codinggame.global.dto.LoginRequestDto;
+import com.jpms.codinggame.global.dto.LoginResponseDto;
 import com.jpms.codinggame.global.dto.SignupRequestDto;
-import com.jpms.codinggame.jwt.JwtTokenProvider;
+import com.jpms.codinggame.jwt.JwtTokenUtil;
 import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +24,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenUtil jwtTokenUtil;
 
     //회원가입 로직
     public void signUp(SignupRequestDto signupRequestDto) throws Exception {
@@ -46,14 +45,25 @@ public class UserService {
                 .build());
     }
 
-    public JwtToken LogIn(LogInDto logInDto) throws Exception {
-        Optional<User> optionalUser = userRepository.findByUserName(logInDto.getUsername());
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) throws Exception {
+
+        Optional<User> optionalUser = userRepository.findByEmail(loginRequestDto.getEmail());
         if (optionalUser.isEmpty()) throw new Exception();
-        else if (!bCryptPasswordEncoder.matches(logInDto.getPassword(), optionalUser.get().getPassword()))
+        else if (!bCryptPasswordEncoder.matches(loginRequestDto.getPassword(), optionalUser.get().getPassword()))
             throw new Exception();
 
+        User user = optionalUser.get();
+
+        String accessToken = jwtTokenUtil.createToken(user.getId(),"access");
+        String refreshToken = jwtTokenUtil.createToken(user.getId(),"refresh");
+
+        return LoginResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
 
     }
+
 
 
 }

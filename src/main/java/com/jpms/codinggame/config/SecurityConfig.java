@@ -1,5 +1,6 @@
 package com.jpms.codinggame.config;
 
+import com.jpms.codinggame.jwt.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Bag;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -12,12 +13,15 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 @EnableWebSecurity
 @EnableMethodSecurity
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtTokenFilter jwtTokenFilter;
 
     @Bean
     public static BCryptPasswordEncoder bCryptPasswordEncoder(){
@@ -33,7 +37,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
+        return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/signup", "/", "/login").permitAll()
@@ -47,9 +51,9 @@ public class SecurityConfig {
                 .logout((logout) -> logout
                         .logoutSuccessUrl("/")
                         .invalidateHttpSession(true)
-                );
-
-        return http.build();
+                )
+                .addFilterBefore(jwtTokenFilter, AuthorizationFilter.class)
+                .build();
     }
 
 

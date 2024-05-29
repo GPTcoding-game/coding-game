@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
@@ -27,7 +28,7 @@ public class Qna {
     private String title;
 
     @Column
-    private LocalDateTime time;
+    private LocalDate time;
 
     @ManyToOne
     @JoinColumn(name="question_id")

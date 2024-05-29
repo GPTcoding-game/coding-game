@@ -2,7 +2,7 @@ package com.jpms.codinggame.controller;
 
 import com.jpms.codinggame.dto.QnaCreateRequestDto;
 import com.jpms.codinggame.dto.QnaModifyRequestDto;
-import com.jpms.codinggame.dto.QnaResponseDto;
+import com.jpms.codinggame.dto.QnaResDto;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.global.dto.ApiResponse;
 import com.jpms.codinggame.global.dto.ResponseDto;
@@ -34,7 +34,7 @@ public class QnaController {
     }
 
     //질문 삭제 요청
-    @DeleteMapping("/question/{}/qna/{}")
+    @DeleteMapping("/question/{questionId}/qna/{qnaId}")
     public ApiResponse<ResponseDto> deleteQna(
             @PathVariable("questionId") Long questionId,
             @PathVariable("qnaId") Long qnaId,
@@ -46,7 +46,7 @@ public class QnaController {
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("질문 삭제 완료"));
     }
     //질문 수정 요청
-    @PutMapping("/question/{}/qna/{}")
+    @PutMapping("/question/{questionId}/qna/{qnaId}")
     public ApiResponse<ResponseDto> modifyQna(
             @PathVariable("questionId") Long questionId,
             @PathVariable("qnaId") Long qnaId,
@@ -58,14 +58,14 @@ public class QnaController {
 
     //질문 리스트 가져오기 요청
     @GetMapping("/question/{}/qnas")
-    public ApiResponse<List<QnaResponseDto>> getQnaList(
+    public ApiResponse<List<QnaResDto>> getQnaList(
             @PathVariable("questionId") Long questionId
     ){
         return new ApiResponse<>(HttpStatus.OK,qnaService.getQnaList(questionId));
     }
 
-    @GetMapping("/question/{}/qna/{}")
-    public ApiResponse<QnaResponseDto> getQna(
+    @GetMapping("/question/{questionId}/qna/{qnaId}")
+    public ApiResponse<QnaResDto> getQna(
             @PathVariable("questionId") Long questionId,
             @PathVariable("qnaId") Long qnaId
     ){

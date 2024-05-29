@@ -29,4 +29,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     List<Question> findAllQuestionByDateAndType(
             @Param("questionType") String questionType,
             @Param("date") LocalDate date);
+
+    @Query("SELECT q FROM Question q WHERE q.date != :date ORDER BY :date DESC")
+    List<Question> findAllByDateNotToday(@Param("date") LocalDate date);
 }

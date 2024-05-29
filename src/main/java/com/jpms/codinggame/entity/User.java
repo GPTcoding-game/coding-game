@@ -50,4 +50,12 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Question> questionList;
+
+    public void updateQuestionList(List<Question> questionList){
+        this.questionList = questionList;
+    }
+
+    public void updateIsDone(boolean isDone){
+        this.isDone = isDone;
+    }
 }

@@ -38,7 +38,7 @@ public class GameService {
         List<Integer> incorrectNumberList = dto.getIncorrectNumber();
 
         //틀린 문제 리스트를 user 에 저장 (추후 틀린문제 다시보기에 활용)
-        User user = userRepository.findByUserName(authUser.getUserName());
+        User user = userRepository.findById(authUser.getId()).orElseThrow(RuntimeException::new);
         List<Question> incorrectQuestionList = user.getQuestionList();
 
         //QuestionNo 와 Date 로 틀린 문제 idx 특정.
@@ -63,7 +63,7 @@ public class GameService {
     * */
     public void stopGame(Authentication authentication){
         User authUser = (User) authentication.getPrincipal();
-        User user = userRepository.findByUserName(authUser.getUserName());
+        User user = userRepository.findById(authUser.getId()).orElseThrow(RuntimeException::new);
         user.updateIsDone(false);
     }
 }

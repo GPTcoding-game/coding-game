@@ -40,18 +40,18 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/signup", "/", "/login").permitAll()
+//                        .requestMatchers("/signup", "/", "/login").permitAll()
                         .anyRequest().permitAll()
                 )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
-                        .permitAll()
-                )
-                .logout((logout) -> logout
-                        .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true)
-                )
+//                .formLogin(form -> form
+//                        .loginPage("/login")
+//                        .defaultSuccessUrl("/", true)
+//                        .permitAll()
+//                )
+//                .logout((logout) -> logout
+//                        .logoutSuccessUrl("/")
+//                        .invalidateHttpSession(true)
+//                )
                 .addFilterBefore(jwtTokenFilter, AuthorizationFilter.class)
                 .build();
     }

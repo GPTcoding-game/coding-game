@@ -20,11 +20,14 @@ public class JwtTokenUtil {
     private final Key signingKey;
     private final JwtParser jwtParser;
 
+    private final AESUtil aesUtil;
+
     public static long accessTokenDuration = 1000 * 60 * 30  ;
     public static long refreshTokenDuration = 1000 * 60 * 60 * 3;
 
-    public JwtTokenUtil(@Value("${jwt.secret}") String secretKey){
+    public JwtTokenUtil(@Value("${jwt.secret}") String secretKey, AESUtil aesUtil){
         this.signingKey = Keys.hmacShaKeyFor(secretKey.getBytes());
+        this.aesUtil = aesUtil;
         this.jwtParser = Jwts.parserBuilder().setSigningKey(signingKey).build();
     }
 
@@ -34,7 +37,7 @@ public class JwtTokenUtil {
         long duration = 0;
 
         //유연성을 위하여 처음 생성시 기본 설정만 정의
-        Claims claims = Jwts.claims().setSubject(AESUtil.encrypt(userId));
+        Claims claims = Jwts.claims().setSubject(aesUtil.encrypt(userId));
         if (type.equals("access")){
             claims.put("type","access");
             duration = accessTokenDuration;
@@ -68,7 +71,7 @@ public class JwtTokenUtil {
 
     // 토큰을 파싱하여 암호화된 id 추출 후 복호화
     public long getId(String token) throws Exception {
-        return AESUtil.decrypt(jwtParser.parseClaimsJws(token).getBody().getSubject());
+        return aesUtil.decrypt(jwtParser.parseClaimsJws(token).getBody().getSubject());
     }
 
     public Authentication getAuthentication(long userId) {

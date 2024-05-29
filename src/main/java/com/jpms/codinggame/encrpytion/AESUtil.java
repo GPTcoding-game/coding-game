@@ -1,21 +1,23 @@
 package com.jpms.codinggame.encrpytion;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
+@Component
 public class AESUtil {
 
 
 
 
     @Value("${aes.secret}")
-    private static String aesKey;
+    private String aesKey;
 
-    public static String encrypt(long id) throws Exception {
+    public String encrypt(long id) throws Exception {
         // 암호화 키 생성
         SecretKey secretKey = new SecretKeySpec(aesKey.getBytes(), "AES");
 
@@ -31,7 +33,7 @@ public class AESUtil {
         return Base64.getEncoder().encodeToString(encryptedBytes);
     }
 
-    public static long decrypt(String encryptedId) throws Exception {
+    public long decrypt(String encryptedId) throws Exception {
         // 복호화 키 생성
         SecretKey secretKey = new SecretKeySpec(aesKey.getBytes(), "AES");
 

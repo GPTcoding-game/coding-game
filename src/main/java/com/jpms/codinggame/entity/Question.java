@@ -38,9 +38,6 @@ public class Question {
     @Column
     private int level;
 
-    @Column
-    private String choice;
-
     @Column(columnDefinition = "TEXT")
     private String answer;
 

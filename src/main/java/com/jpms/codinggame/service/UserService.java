@@ -46,7 +46,7 @@ public class UserService {
 
     public LoginResponseDto login(LoginRequestDto loginRequestDto) throws Exception {
 
-        Optional<User> optionalUser = userRepository.findByEmail(loginRequestDto.getEmail());
+        Optional<User> optionalUser = userRepository.findByUserName(loginRequestDto.getUsername());
         if (optionalUser.isEmpty()) throw new Exception();
         else if (!bCryptPasswordEncoder.matches(loginRequestDto.getPassword(), optionalUser.get().getPassword()))
             throw new Exception();

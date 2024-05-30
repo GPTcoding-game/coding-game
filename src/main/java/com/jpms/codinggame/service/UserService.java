@@ -39,6 +39,7 @@ public class UserService {
         userRepository.save(User.builder()
                 .userName(signupRequestDto.getUsername())
                 .password(bCryptPasswordEncoder.encode(signupRequestDto.getPassword()))
+                .nickName(signupRequestDto.getNickName())
                 .email(signupRequestDto.getEmail())
                 .address(signupRequestDto.getAddress())
                 .role(Role.ROLE_USER)

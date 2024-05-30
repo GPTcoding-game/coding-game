@@ -1,6 +1,7 @@
 package com.jpms.codinggame.service;
 
 import com.jpms.codinggame.entity.Question;
+import com.jpms.codinggame.entity.QuestionType;
 import com.jpms.codinggame.global.dto.GPTRequestDto;
 import com.jpms.codinggame.global.dto.GPTResponseDto;
 import com.jpms.codinggame.repository.QuestionRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,8 +23,10 @@ public class GPTService {
 
     private final QuestionRepository questionRepository;
 
-    public String createPrompt(){
-        String prompt = "자바 코딩 문제를 생성해 주세요. 주제는 자료구조 중 '스택'입니다.\n" +
+    public String createPrompt(QuestionType qType){
+
+
+        String prompt = qType + " 코딩 문제를 생성해 주세요.\n" +
                 "문제는 컴파일 시 결과를 물어보거나 코드 중 빈칸을 채우는 형식이어야 합니다.\n" +
                 "5가지의 보기가 주어지고 그 중 답을 고르는 문제입니다.\n" +
                 "다음 형식을 따라 작성해 주세요:\n" +
@@ -38,6 +42,7 @@ public class GPTService {
         String answer = null;
         String choice = null;
         String content = null;
+        QuestionType qType = getRandomEnumValue(QuestionType.class);
         Pattern pattern = Pattern.compile("문제:(.*)보기:(.*)답:(.*)", Pattern.DOTALL);
 
         //시도 횟수
@@ -46,7 +51,7 @@ public class GPTService {
 
         while ((question == null || answer == null || !isValidAnswer(answer)) && attempt < maxAttempts) {
 
-            String prompt = createPrompt();
+            String prompt = createPrompt(qType);
 
             if (attempt > 0) {
                 prompt = modifyPrompt(prompt, question, choice, answer);
@@ -84,10 +89,18 @@ public class GPTService {
                 .answer(answer)
                 .choice(choice)
                 .date(today)
+//                .questionType(qType)
                 .questionNo(newQuestionNo)
                 .build());
 
         return question1;
+    }
+
+    public static <T extends Enum<?>> T getRandomEnumValue(Class<T> enumClass) {
+        Random random = new Random();
+        T[] enumValues = enumClass.getEnumConstants();
+        int randomIndex = random.nextInt(enumValues.length);
+        return enumValues[randomIndex];
     }
 
     private boolean isValidAnswer(String answer) {

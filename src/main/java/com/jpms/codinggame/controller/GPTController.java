@@ -31,7 +31,7 @@ public class GPTController {
     @GetMapping("/chat")
     public String chat(){
         Question question = gptService.createQuestion(model, apiURL, template);
-        return "문제: " + question.getContent() + "\n답: " + question.getAnswer();
+        return "문제: " + question.getContent() +"\n보기: \n" + question.getChoice() + "\n답: " + question.getAnswer();
     }
 
 }

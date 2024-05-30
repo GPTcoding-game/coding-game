@@ -23,6 +23,14 @@ public class User {
     @Column(unique = true)
     private String userName;
 
+    @Column(unique = true)
+    private String nickName;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Tier tier;
+
+
     @Column
     private String password;
 

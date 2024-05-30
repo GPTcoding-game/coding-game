@@ -4,10 +4,13 @@ import com.jpms.codinggame.dto.QnaCreateRequestDto;
 import com.jpms.codinggame.dto.QnaModifyRequestDto;
 import com.jpms.codinggame.dto.QnaResDto;
 import com.jpms.codinggame.entity.Qna;
+import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.repository.QnaRepository;
 import com.jpms.codinggame.repository.QuestionRepository;
+import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,19 +22,19 @@ import java.util.stream.Collectors;
 public class QnaService {
     private final QnaRepository qnaRepository;
     private final QuestionRepository questionRepository;
+    private final UserRepository userRepository;
 
     //생성
     public void createQna(
             Long questionId,
-            QnaCreateRequestDto dto){
-        //todo Qna 객체에 작성자(username)이 있어야 할 것 같은데, 이거는 Authentication 객체 안에 있는 username 을 끌어와야 할 것 같다
-        //일단 없이 진행하기
+            QnaCreateRequestDto dto,
+            Authentication authentication){
         qnaRepository.save(Qna
                         .builder()
                         .title(dto.getTitle())
                         .content(dto.getContent())
                         .question(questionRepository.findById(questionId).orElseThrow(RuntimeException::new))
-//                        .user()
+                        .user(userRepository.findById((Long) authentication.getPrincipal()).orElseThrow(RuntimeException::new))
                         .time(dto.getTime())
                         .build());
     }
@@ -41,7 +44,8 @@ public class QnaService {
     public void modifyQna(
             Long qnaId,
             Long questionId,
-            QnaModifyRequestDto dto){
+            QnaModifyRequestDto dto,
+            Authentication authentication){
         Qna qna = qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new);
         qnaRepository.save(Qna
                 .builder()
@@ -49,15 +53,17 @@ public class QnaService {
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .question(questionRepository.findById(questionId).orElseThrow(RuntimeException::new))
-//                .user()
+                .user(userRepository.findById((Long) authentication.getPrincipal()).orElseThrow(RuntimeException::new))
                 .time(dto.getTime())
                 .build());
     };
 
 
     //삭제
-    public void deleteQna(Long qnaId){
+    public void deleteQna(Long qnaId, Authentication authentication){
         Qna qna = qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new);
+        User user = userRepository.findById((Long) authentication.getPrincipal()).orElseThrow(RuntimeException::new);
+        if(qna.getUser() != user) throw new RuntimeException();
         qnaRepository.deleteById(qnaId);
     };
 

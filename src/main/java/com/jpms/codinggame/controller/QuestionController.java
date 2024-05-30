@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,13 +22,16 @@ import java.util.List;
 @RequestMapping("/api/v1")
 public class QuestionController {
     private final QuestionService questionService;
-    private final RedisTemplate<String, String> redisTemplate;
 
     /*
     * 틀린 Question 리스트 뽑기
     * */
-//    @GetMapping("/question/incorrect")
-//    public ApiResponse<List<QuestionResDto>> getIncorrectQuestionList(){}
+    @GetMapping("/question/incorrect")
+    public ApiResponse<List<QuestionResDto>> getIncorrectQuestionList(
+            Authentication authentication
+    ){
+        return new ApiResponse<>(HttpStatus.OK,questionService.getIncorrectQuestionList(authentication));
+    }
 
     /*
     * Question(Python, Java, C, SQL, CS 지식) 별 문제 리스트 뽑기(당일 출제 된 문제는 제외)
@@ -42,7 +46,9 @@ public class QuestionController {
     /*
     * 역대 출제 된 문제 리스트 뽑기
     * */
-//    @GetMapping("/question/past")
-//    public ApiResponse<List<QuestionResDto>> getPastQuestionList(){}
+    @GetMapping("/question/past")
+    public ApiResponse<List<QuestionResDto>> getPastQuestionList(){
+        return new ApiResponse<>(HttpStatus.OK,questionService.getPastQuestionAll());
+    }
 
 }

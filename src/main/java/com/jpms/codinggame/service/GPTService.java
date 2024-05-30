@@ -24,8 +24,6 @@ public class GPTService {
     private final QuestionRepository questionRepository;
 
     public String createPrompt(QuestionType qType){
-
-
         String prompt = qType + " 코딩 문제를 생성해 주세요.\n" +
                 "문제는 컴파일 시 결과를 물어보거나 코드 중 빈칸을 채우는 형식이어야 합니다.\n" +
                 "5가지의 보기가 주어지고 그 중 답을 고르는 문제입니다.\n" +
@@ -33,8 +31,6 @@ public class GPTService {
                 "문제: [여기에 문제를 적어 주세요]\n" +
                 "보기: [여기에 보기 5가지를 적어 주세요]\n" +
                 "답: [여기에 한자리 숫자로 된 답을 적어 주세요]";
-
-
         return prompt;
     }
     public Question createQuestion(String model, String apiURL, RestTemplate template) {

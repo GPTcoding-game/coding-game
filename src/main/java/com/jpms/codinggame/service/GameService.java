@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -26,7 +27,9 @@ public class GameService {
     * 참여제한 여부 확인
     * */
     public boolean isDone(Authentication authentication){
-        User user = (User) authentication.getPrincipal();
+        User user = userRepository
+                .findById((Long)authentication.getPrincipal())
+                .orElseThrow(RuntimeException::new);
         return user.isDone();
     }
 
@@ -34,18 +37,19 @@ public class GameService {
     * 채점로직
     * */
     public void checkAnswer(Authentication authentication, CheckAnswerReqDto dto){
-        User authUser = (User) authentication.getPrincipal();
-        List<Integer> incorrectNumberList = dto.getIncorrectNumber();
+        User user = userRepository
+                .findById((Long)authentication.getPrincipal())
+                .orElseThrow(RuntimeException::new);
+        List<Integer> incorrectQuestionNumberList = dto.getIncorrectNumber();
 
         //틀린 문제 리스트를 user 에 저장 (추후 틀린문제 다시보기에 활용)
-        User user = userRepository.findById(authUser.getId()).orElseThrow(RuntimeException::new);
         List<Question> incorrectQuestionList = user.getQuestionList();
 
         //QuestionNo 와 Date 로 틀린 문제 idx 특정.
-        for (int i = 0; i < incorrectNumberList.size(); i++) {
+        for (int i = 0; i < incorrectQuestionNumberList.size(); i++) {
             incorrectQuestionList
                     .add(questionRepository
-                            .findAllByDateAndQuestionNo(LocalDate.now(),incorrectNumberList.get(i)));
+                            .findAllByDateAndQuestionNo(LocalDate.now(),incorrectQuestionNumberList.get(i)));
         }
 
         //틀린문제, 참여가능여부 업데이트
@@ -62,8 +66,9 @@ public class GameService {
     * 게임 중도포기
     * */
     public void stopGame(Authentication authentication){
-        User authUser = (User) authentication.getPrincipal();
-        User user = userRepository.findById(authUser.getId()).orElseThrow(RuntimeException::new);
+        User user = userRepository
+                .findById((Long)authentication.getPrincipal())
+                .orElseThrow(RuntimeException::new);
         user.updateIsDone(false);
     }
 }

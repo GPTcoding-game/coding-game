@@ -1,7 +1,5 @@
 package com.jpms.codinggame.service;
 
-import com.jpms.codinggame.dto.LogInDto;
-import com.jpms.codinggame.entity.JwtToken;
 import com.jpms.codinggame.entity.Role;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.global.dto.LoginRequestDto;

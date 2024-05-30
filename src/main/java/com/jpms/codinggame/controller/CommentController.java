@@ -9,6 +9,7 @@ import com.jpms.codinggame.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,9 +25,10 @@ public class CommentController {
     @PostMapping("/qna/{}/comment")
     public ApiResponse<ResponseDto> createComment(
             @PathVariable("qnaId") Long qnaId,
-            @RequestBody CommentCreateRequestDto dto
+            @RequestBody CommentCreateRequestDto dto,
+            Authentication authentication
             ){
-        commentService.createComment(qnaId,dto);
+        commentService.createComment(qnaId,dto,authentication);
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("댓글 생성 완료"));
     }
 
@@ -42,9 +44,10 @@ public class CommentController {
     @DeleteMapping("/qna/{qnaId}/comment/{commentId}")
     public ApiResponse<ResponseDto> deleteComment(
             @PathVariable("qnaId") Long qnaId,
-            @PathVariable("commentId") Long commentId
+            @PathVariable("commentId") Long commentId,
+            Authentication authentication
     ){
-        commentService.deleteComment(commentId);
+        commentService.deleteComment(commentId, authentication);
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("댓글 삭제 완료"));
     }
     //답글 수정 요청
@@ -52,9 +55,10 @@ public class CommentController {
     public ApiResponse<ResponseDto> modifyComment(
             @PathVariable("qnaId") Long qnaId,
             @PathVariable("commentId") Long commentId,
-            @RequestBody CommentModifyRequestDto dto
+            @RequestBody CommentModifyRequestDto dto,
+            Authentication authentication
             ){
-        commentService.modifyComment(qnaId,commentId,dto);
+        commentService.modifyComment(qnaId,commentId,dto,authentication);
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("댓글 수정 완료"));
     }
 }

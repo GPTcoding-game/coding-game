@@ -30,12 +30,11 @@ public class GameController {
     */
     @GetMapping("/game/start")
     public ApiResponse<List<QuestionResDto>> startGame(
-//            Authentication authentication,
+            Authentication authentication,
             @RequestParam(name = "volume") int volume
     ){
         //게임 참여 가능 여부 파악
-        //리스트 넘기기
-//        if(gameService.isDone(authentication)) throw new RuntimeException("게임은 하루에 한 번 참여 가능");
+        if(gameService.isDone(authentication)) throw new RuntimeException("게임은 하루에 한 번 참여 가능");
         return new ApiResponse<>(HttpStatus.OK,questionService.getQuestionList(volume));
     }
 

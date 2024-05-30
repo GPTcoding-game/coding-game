@@ -28,8 +28,7 @@ public class QnaController {
             @RequestBody QnaCreateRequestDto dto,
             Authentication authentication
     ){
-        User user = (User) authentication.getPrincipal();
-        qnaService.createQna(questionId,dto);
+        qnaService.createQna(questionId,dto,authentication);
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("질문 생성 완료"));
     }
 
@@ -42,9 +41,7 @@ public class QnaController {
             @PathVariable("qnaId") Long qnaId,
             Authentication authentication
     ){
-        User user = (User) authentication.getPrincipal();
-        //contextSecurityHolder 안에 있는 User 의 username 과 일치하면 삭제 가능
-        qnaService.deleteQna(qnaId);
+        qnaService.deleteQna(qnaId,authentication);
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("질문 삭제 완료"));
     }
     //질문 수정 요청
@@ -54,9 +51,10 @@ public class QnaController {
     public ApiResponse<ResponseDto> modifyQna(
             @PathVariable("questionId") Long questionId,
             @PathVariable("qnaId") Long qnaId,
-            @RequestBody QnaModifyRequestDto dto
+            @RequestBody QnaModifyRequestDto dto,
+            Authentication authentication
     ){
-        qnaService.modifyQna(qnaId,questionId,dto);
+        qnaService.modifyQna(qnaId,questionId,dto,authentication);
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("질문 수정 완료"));
     }
 
@@ -71,7 +69,6 @@ public class QnaController {
     @GetMapping("/question/{questionId}/qna/{qnaId}")
 
     public ApiResponse<QnaResDto> getQna(
-
             @PathVariable("questionId") Long questionId,
             @PathVariable("qnaId") Long qnaId
     ){

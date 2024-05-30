@@ -58,4 +58,8 @@ public class User {
     public void updateIsDone(boolean isDone){
         this.isDone = isDone;
     }
+
+    public void updateScore(int score){
+        this.score = score;
+    }
 }

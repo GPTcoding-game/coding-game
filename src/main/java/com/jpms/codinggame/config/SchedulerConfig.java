@@ -1,8 +1,6 @@
 package com.jpms.codinggame.config;
 
 import com.jpms.codinggame.service.GPTService;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

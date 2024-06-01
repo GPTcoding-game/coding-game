@@ -8,5 +8,4 @@ import java.time.LocalDateTime;
 @Data
 public class CommentModifyRequestDto {
     private String content;
-    private LocalDate time;
 }

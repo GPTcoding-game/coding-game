@@ -13,5 +13,4 @@ import java.time.LocalDateTime;
 public class QnaCreateRequestDto {
     private String content;
     private String title;
-    private LocalDate time;
 }

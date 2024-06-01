@@ -84,6 +84,7 @@ public class QnaService {
                         .title(qna.getTitle())
                         .content(qna.getContent())
                         .time(LocalDate.now())
+                        .nickname(qna.getUser().getNickName())
                         .build())
                 .collect(Collectors.toList());
     }

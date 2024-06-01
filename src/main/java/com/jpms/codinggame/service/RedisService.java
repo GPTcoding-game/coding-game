@@ -40,6 +40,8 @@ public class RedisService {
         return hashOps.entries(key);
     }
 
+    public void delete(String key) { redisTemplate.delete(key); }
+
     public void delete(String key, String... hashKeys) {
         hashOps.delete(key, (Object[]) hashKeys);
     }

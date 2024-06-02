@@ -6,6 +6,8 @@ import com.jpms.codinggame.global.dto.ApiResponse;
 import com.jpms.codinggame.global.dto.ResponseDto;
 import com.jpms.codinggame.service.GameService;
 import com.jpms.codinggame.service.QuestionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Tag(name ="게임 Controller", description = "게임 시작, 채점, 중도 포기 로직")
 @RestController
 @Slf4j
 @RequestMapping("/api/v1")
@@ -29,6 +32,7 @@ public class GameController {
     풀 문제의 갯수 정하기 ( query parameter 로 갯수 받아오기 )  /game/start?volume=10
     */
     @GetMapping("/game/start")
+    @Operation(summary = "게임 시작 요청" , description = "문제 갯수 설정가능 / isDone 필드 false 이면 exception 날림")
     public ApiResponse<List<QuestionResDto>> startGame(
             Authentication authentication,
             @RequestParam(name = "volume") int volume
@@ -42,6 +46,7 @@ public class GameController {
     * 채점 로직
     * */
     @GetMapping("/game/answer")
+    @Operation(summary = "채점 요청" , description = "틀린문제 QuestionNo 를 리스트 형태로 만들어 요청해야함.")
     public ApiResponse<ResponseDto> checkAnswer(
             Authentication authentication,
             @RequestBody CheckAnswerReqDto dto
@@ -58,6 +63,7 @@ public class GameController {
     * 게임 중도 포기 로직
     * */
     @GetMapping("/game/stop")
+    @Operation(summary = "게임 중도 포기 로직" , description = "")
     public ApiResponse<ResponseDto> stopGame(
 //            Authentication authentication
     ){

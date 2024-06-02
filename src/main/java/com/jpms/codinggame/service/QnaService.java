@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,7 @@ public class QnaService {
                         .content(dto.getContent())
                         .question(questionRepository.findById(questionId).orElseThrow(RuntimeException::new))
                         .user(userRepository.findById((Long) authentication.getPrincipal()).orElseThrow(RuntimeException::new))
-                        .time(dto.getTime())
+                        .time(LocalDate.now())
                         .build());
     }
 
@@ -54,7 +55,7 @@ public class QnaService {
                 .content(dto.getContent())
                 .question(questionRepository.findById(questionId).orElseThrow(RuntimeException::new))
                 .user(userRepository.findById((Long) authentication.getPrincipal()).orElseThrow(RuntimeException::new))
-                .time(dto.getTime())
+                .time(LocalDate.now())
                 .build());
     };
 
@@ -82,7 +83,8 @@ public class QnaService {
                         .builder()
                         .title(qna.getTitle())
                         .content(qna.getContent())
-                        .time(qna.getTime())
+                        .time(LocalDate.now())
+                        .nickname(qna.getUser().getNickName())
                         .build())
                 .collect(Collectors.toList());
     }

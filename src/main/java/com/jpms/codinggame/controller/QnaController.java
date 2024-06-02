@@ -7,6 +7,8 @@ import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.global.dto.ApiResponse;
 import com.jpms.codinggame.global.dto.ResponseDto;
 import com.jpms.codinggame.service.QnaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "질문 Controller", description = "질문 CRUD API")
 @RestController
 @Slf4j
 @RequestMapping("/api/v1")
@@ -22,7 +25,8 @@ import java.util.List;
 public class QnaController {
     private final QnaService qnaService;
     //질문 생성 요청
-    @PostMapping("/question/{}/qna")
+    @PostMapping("/question/{questionId}/qna")
+    @Operation(summary = "질문 생성 요청" , description = "")
     public ApiResponse<ResponseDto> createQna(
             @PathVariable("questionId") Long questionId,
             @RequestBody QnaCreateRequestDto dto,
@@ -35,6 +39,7 @@ public class QnaController {
     //질문 삭제 요청
 
     @DeleteMapping("/question/{questionId}/qna/{qnaId}")
+    @Operation(summary = "질문 삭제 요청" , description = "")
     public ApiResponse<ResponseDto> deleteQna(
             @PathVariable("questionId") Long questionId,
             @PathVariable("qnaId") Long qnaId,
@@ -45,6 +50,7 @@ public class QnaController {
     }
     //질문 수정 요청
     @PutMapping("/question/{questionId}/qna/{qnaId}")
+    @Operation(summary = "질문 수정 요청" , description = "")
     public ApiResponse<ResponseDto> modifyQna(
             @PathVariable("questionId") Long questionId,
             @PathVariable("qnaId") Long qnaId,
@@ -56,7 +62,8 @@ public class QnaController {
     }
 
     //질문 리스트 가져오기 요청
-    @GetMapping("/question/{}/qnas")
+    @GetMapping("/question/{questionId}/qnas")
+    @Operation(summary = "질문 리스트 요청(질문 전체 조회)" , description = "")
     public ApiResponse<List<QnaResDto>> getQnaList(
             @PathVariable("questionId") Long questionId
     ){
@@ -64,6 +71,7 @@ public class QnaController {
     }
 
     @GetMapping("/question/{questionId}/qna/{qnaId}")
+    @Operation(summary = "단일 질문 요청(질문 조회)" , description = "")
     public ApiResponse<QnaResDto> getQna(
             @PathVariable("questionId") Long questionId,
             @PathVariable("qnaId") Long qnaId

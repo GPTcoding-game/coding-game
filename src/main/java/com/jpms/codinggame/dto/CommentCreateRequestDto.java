@@ -12,5 +12,4 @@ import java.time.LocalDateTime;
 @Builder
 public class CommentCreateRequestDto {
     private String content;
-    private LocalDate time;
 }

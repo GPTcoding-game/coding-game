@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,7 @@ public class CommentService {
         commentRepository.save(Comment
                 .builder()
                 .content(dto.getContent())
-                .time(dto.getTime())
+                .time(LocalDate.now())
                 .user(userRepository.findById((Long)authentication.getPrincipal()).orElseThrow(RuntimeException::new))
                 .qna(qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new))
                 .build());
@@ -46,7 +47,8 @@ public class CommentService {
                 .map(comment -> CommentResponseDto
                         .builder()
                         .content(comment.getContent())
-                        .time(comment.getTime())
+                        .nickname(comment.getUser().getNickName())
+                        .time(LocalDate.now())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -60,7 +62,7 @@ public class CommentService {
                 .builder()
                 .id(commentId)
                 .content(dto.getContent())
-                .time(dto.getTime())
+                .time(LocalDate.now())
                 .user(userRepository.findById((Long) authentication.getPrincipal()).orElseThrow(RuntimeException::new))
                 .qna(qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new))
                 .build());

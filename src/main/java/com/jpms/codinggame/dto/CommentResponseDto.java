@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class CommentResponseDto {
     private String content;
+    private String nickname;
     private LocalDate time;
 
     static CommentResponseDto fromEntity(Comment comment){

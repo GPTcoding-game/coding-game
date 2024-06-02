@@ -5,6 +5,7 @@ import com.jpms.codinggame.repository.UserRepository;
 import com.jpms.codinggame.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -40,9 +41,19 @@ public class ScoreScheduler {
 
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "1 0 0 * * ?")
+//    @Scheduled(fixedDelay = 30000)
     public void updateState(){
-        userRepository.updateAllState();
+        Set<String> userIdSet = redisService.getAllKeys();
+
+        for (String key : userIdSet) {
+
+            //isDone = true 로 설정
+            userRepository.updateState(Long.parseLong(key));
+
+            //redis 값 삭제
+            redisService.delete(key);
+        }
     }
 
 }

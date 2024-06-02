@@ -27,11 +27,6 @@ public class QuestionService {
     * */
     public List<QuestionResDto> getQuestionList(int volume){
         List<Question> questionList = questionRepository.findAllByDate(LocalDate.now()).subList(0,volume);
-//        redisService.put("test1","key1",11);
-//        redisService.put("test1","key2","fifi");
-//        System.out.println(redisService.get("test1","key1"));
-//        System.out.println(redisService.get("test1","key2"));
-
         return questionList
                 .stream()
                 .map(question -> QuestionResDto

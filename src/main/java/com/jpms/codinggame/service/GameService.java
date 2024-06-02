@@ -47,9 +47,14 @@ public class GameService {
 
         //QuestionNo 와 Date 로 틀린 문제 idx 특정.
         for (int i = 0; i < incorrectQuestionNumberList.size(); i++) {
+            Question question =
+                    questionRepository.findAllByDateAndQuestionNo(LocalDate.now(),incorrectQuestionNumberList.get(i));
+
+            //만약 이전에 틀린 적이 있다면 넘어감
+            if(incorrectQuestionList.contains(question)) continue;
+
             incorrectQuestionList
-                    .add(questionRepository
-                            .findAllByDateAndQuestionNo(LocalDate.now(),incorrectQuestionNumberList.get(i)));
+                    .add(question);
         }
 
         //틀린문제, 참여가능여부 업데이트
@@ -70,5 +75,6 @@ public class GameService {
                 .findById((Long)authentication.getPrincipal())
                 .orElseThrow(RuntimeException::new);
         user.updateIsDone(false);
+        redisHashService.put(String.valueOf(user.getId()),"score",0);
     }
 }

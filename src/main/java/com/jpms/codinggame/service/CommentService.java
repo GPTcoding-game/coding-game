@@ -47,6 +47,7 @@ public class CommentService {
                 .map(comment -> CommentResponseDto
                         .builder()
                         .content(comment.getContent())
+                        .nickname(comment.getUser().getNickName())
                         .time(LocalDate.now())
                         .build())
                 .collect(Collectors.toList());

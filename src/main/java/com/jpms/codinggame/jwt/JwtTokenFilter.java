@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final JwtTokenUtil jwtTokenUtil;
@@ -28,13 +30,19 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+        log.info("filter in");
 
-        Optional<Cookie> accessTokenCookie = CookieUtil.getCookieValue(request, "accessToken");
+//        Optional<Cookie> accessTokenCookie = CookieUtil.getCookieValue(request, "accessToken");
+        String authHeaderAccessToken = request.getHeader("Authorization");
+        log.info(authHeaderAccessToken);
+
+
         Optional<Cookie> refreshTokenCookie = CookieUtil.getCookieValue(request, "refreshToken");
-
+        log.info(String.valueOf(refreshTokenCookie.isPresent()));
         // access 토큰이 있는 경우
-        if (accessTokenCookie.isPresent()) {
-            String accessToken = accessTokenCookie.get().getValue();
+//        if (accessTokenCookie.isPresent()) {
+        if (authHeaderAccessToken != null && authHeaderAccessToken.startsWith("Bearer ")) {
+            String accessToken = authHeaderAccessToken.split(" ")[1];
 
             // access 토큰 유효성 검사
             if (jwtTokenUtil.validateToken(accessToken)) {
@@ -75,8 +83,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                CookieUtil.createCookie(response, "accessToken", newAccessToken,
-                        (int) jwtTokenUtil.accessTokenDuration / 1000);
+//                CookieUtil.createCookie(response, "accessToken", newAccessToken,
+//                        (int) jwtTokenUtil.accessTokenDuration / 1000);
+                response.setHeader("Authorization","Bearer "+newAccessToken);
 
                 SecurityContextHolder.getContext().setAuthentication(
                         jwtTokenUtil.getAuthentication(userId)

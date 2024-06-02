@@ -37,11 +37,10 @@ public class UserController {
     @PostMapping("/login")
     public String login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) throws Exception {
         LoginResponseDto loginResponseDto = userService.login(loginRequestDto);
-        CookieUtil.createCookie(
-                response,
-                "accessToken",
-                loginResponseDto.getAccessToken(),
-                (int) ((JwtTokenUtil.accessTokenDuration/1000)));
+
+        //access Token
+        response.setHeader("Authorization","Bearer " + loginResponseDto.getAccessToken());
+        //refresh Token
         CookieUtil.createCookie(
                 response,
                 "refreshToken",

@@ -2,14 +2,12 @@ package com.jpms.codinggame.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "user")
 @Builder
@@ -49,6 +47,12 @@ public class User {
 
     @Column
     private String address;
+
+    @Column
+    private String provider;
+
+    @Column
+    private String providerId;
 
     @OneToMany(mappedBy = "user")
     private List<Qna> qnaList;

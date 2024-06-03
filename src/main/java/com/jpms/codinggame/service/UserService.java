@@ -1,6 +1,7 @@
 package com.jpms.codinggame.service;
 
 import com.jpms.codinggame.entity.Role;
+import com.jpms.codinggame.entity.Tier;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.global.dto.LoginRequestDto;
 import com.jpms.codinggame.global.dto.LoginResponseDto;
@@ -36,11 +37,14 @@ public class UserService {
 
         userRepository.save(User.builder()
                 .userName(signupRequestDto.getUsername())
-                .password(bCryptPasswordEncoder.encode(signupRequestDto.getPassword()))
                 .nickName(signupRequestDto.getNickName())
+                .tier(Tier.BRONZE)
+                .password(bCryptPasswordEncoder.encode(signupRequestDto.getPassword()))
                 .email(signupRequestDto.getEmail())
-                .address(signupRequestDto.getAddress())
+                .score(0)
+                .isDone(false)
                 .role(Role.ROLE_USER)
+                .address(signupRequestDto.getAddress())
                 .build());
     }
 

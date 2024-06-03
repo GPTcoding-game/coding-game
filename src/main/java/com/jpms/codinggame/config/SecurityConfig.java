@@ -1,6 +1,10 @@
 package com.jpms.codinggame.config;
 
+import com.jpms.codinggame.Oauth2.CustomOAuth2UserService;
+import com.jpms.codinggame.Oauth2.OAuth2LoginSuccessHandler;
 import com.jpms.codinggame.jwt.JwtTokenFilter;
+import com.jpms.codinggame.jwt.JwtTokenUtil;
+import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Bag;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -14,6 +18,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -41,7 +47,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
 //                        .requestMatchers("/signup", "/", "/login").permitAll()
-                        .anyRequest().permitAll()
+                                .anyRequest().permitAll()
                 )
 //                .formLogin(form -> form
 //                        .loginPage("/login")

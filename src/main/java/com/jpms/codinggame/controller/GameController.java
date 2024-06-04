@@ -65,9 +65,9 @@ public class GameController {
     @GetMapping("/game/stop")
     @Operation(summary = "게임 중도 포기 로직" , description = "")
     public ApiResponse<ResponseDto> stopGame(
-//            Authentication authentication
+            Authentication authentication
     ){
-//        gameService.stopGame(authentication);
+        gameService.stopGame(authentication);
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("게임 종료"));
     }
 

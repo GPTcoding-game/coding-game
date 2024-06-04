@@ -81,6 +81,7 @@ public class QnaService {
                 .stream()
                 .map(qna -> QnaResDto
                         .builder()
+                        .qnaId(qna.getId())
                         .title(qna.getTitle())
                         .content(qna.getContent())
                         .time(LocalDate.now())
@@ -95,4 +96,21 @@ public class QnaService {
         Qna qna = qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new);
         return QnaResDto.fromEntity(qna);
     }
+
+    //최근 생성 된 질문 가져오기
+    public List<QnaResDto> getRecent5Qna(){
+        List<Qna> qnaList = qnaRepository.findTop5ByOrderByIdDesc();
+        return qnaList
+                .stream()
+                .map(qna -> QnaResDto
+                        .builder()
+                        .qnaId(qna.getId())
+                        .title(qna.getTitle())
+                        .nickname(qna.getUser().getNickName())
+                        .content(qna.getContent())
+                        .time(qna.getTime())
+                        .build())
+                .toList();
+    }
+
 }

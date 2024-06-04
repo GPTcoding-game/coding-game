@@ -78,4 +78,10 @@ public class QnaController {
     ){
         return new ApiResponse<>(HttpStatus.OK,qnaService.getQna(qnaId));
     }
+
+    @GetMapping("/question/recent")
+    @Operation(summary = "최근 생성된 Qna 5개 가져오기", description = "질문게시판 탭 화면에 보여질 최근생성 QNA")
+    public ApiResponse<List<QnaResDto>> getRecentQna(){
+        return new ApiResponse<>(HttpStatus.OK,qnaService.getRecent5Qna());
+    }
 }

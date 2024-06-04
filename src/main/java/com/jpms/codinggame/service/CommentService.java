@@ -46,6 +46,7 @@ public class CommentService {
                 .stream()
                 .map(comment -> CommentResponseDto
                         .builder()
+                        .id(comment.getId())
                         .content(comment.getContent())
                         .nickname(comment.getUser().getNickName())
                         .time(LocalDate.now())
@@ -75,5 +76,18 @@ public class CommentService {
         User user2 = commentRepository.findById(commentId).get().getUser();
         if(user1 != user2) throw new RuntimeException();
         commentRepository.deleteById(commentId);
+    }
+
+    public List<CommentResponseDto> getRecent5Comment(){
+        List<Comment> commentList = commentRepository.findTop5ByOrderByIdDesc();
+        return commentList
+                .stream()
+                .map(comment -> CommentResponseDto
+                        .builder()
+                        .id(comment.getId())
+                        .nickname(comment.getUser().getNickName())
+                        .content(comment.getContent())
+                        .build())
+                .toList();
     }
 }

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class CommentResponseDto {
+    private Long id;
     private String content;
     private String nickname;
     private LocalDate time;
@@ -19,6 +20,7 @@ public class CommentResponseDto {
     static CommentResponseDto fromEntity(Comment comment){
         return CommentResponseDto
                 .builder()
+                .id(comment.getId())
                 .content(comment.getContent())
                 .time(comment.getTime())
                 .build();

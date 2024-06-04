@@ -68,4 +68,6 @@ public class CommentController {
         commentService.modifyComment(qnaId,commentId,dto,authentication);
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("댓글 수정 완료"));
     }
+
+
 }

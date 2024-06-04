@@ -62,7 +62,7 @@ public class GameService {
         user.updateIsDone(false);
 
         //Key : userId , HashKey : "username" , Value : username
-        redisHashService.put(String.valueOf(user.getId()),"username",user.getUserName());
+        redisHashService.put(String.valueOf(user.getId()),"nickname",user.getNickName());
         //Key : userId , HashKey : "score" , Value : score
         redisHashService.put(String.valueOf(user.getId()),"score",dto.getScore());
     }

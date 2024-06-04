@@ -8,6 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RankResDto {
-    private String userName;
+    private String nickname;
     private int score;
 }

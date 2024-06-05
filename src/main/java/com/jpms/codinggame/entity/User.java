@@ -70,4 +70,14 @@ public class User {
     public void updateScore(int score){
         this.score = score;
     }
+
+    public void updateInfo(String password, String nickName, String address) {
+        this.password = password;
+        this.nickName = nickName;
+        this.address = address;
+    }
+
+    public void updateTempPassword(String tempPassword){
+        this.password = tempPassword;
+    }
 }

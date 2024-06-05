@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     Optional<User> findByUserName(String username);
 
-    List<User> findTop50ByOrderByScoreDesc();
+    List<User> findTop50ByOrderByTotalScoreDesc();
 
     @Modifying
     @Query("UPDATE User u SET u.isDone = true WHERE u.id = :id")

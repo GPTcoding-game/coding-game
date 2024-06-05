@@ -5,8 +5,6 @@ import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -56,13 +54,13 @@ public class RankService {
     * */
     public List<RankResDto> getAllDayRank(){
         //50명만 뽑기
-        List<User> userList = userRepository.findTop50ByOrderByScoreDesc();
+        List<User> userList = userRepository.findTop50ByOrderByTotalScoreDesc();
         return userList
                 .stream()
                 .map(user -> RankResDto
                         .builder()
                         .nickname(user.getNickName())
-                        .score(user.getScore())
+                        .score(user.getTotalScore())
                         .build())
                 .toList();
     }

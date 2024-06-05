@@ -48,14 +48,14 @@ public class QuestionController {
         return new ApiResponse<>(HttpStatus.OK,questionService.getQuestionListByType(questionType));
     }
 
-    /*
-    * 역대 출제 된 문제 리스트 뽑기
-    * (로직 수정 >> 지난 문제 전체 가져오기 >> 날짜별 문제 가져오기 (당일 문제 제외)
-    * */
-    @GetMapping("/question/past")
-    @Operation(summary = "날짜별 문제 가져오기로 바꿈" , description = "")
-    public ApiResponse<List<QuestionResDto>> getPastQuestionList(){
-        return new ApiResponse<>(HttpStatus.OK,questionService.getPastQuestionAll());
-    }
+    // /*
+    // * 역대 출제 된 문제 리스트 뽑기
+    // * (로직 수정 >> 지난 문제 전체 가져오기 >> 날짜별 문제 가져오기 (당일 문제 제외)
+    // * */
+    // @GetMapping("/question/past")
+    // @Operation(summary = "날짜별 문제 가져오기로 바꿈" , description = "")
+    // public ApiResponse<List<QuestionResDto>> getPastQuestionList(){
+    //     return new ApiResponse<>(HttpStatus.OK,questionService.getPastQuestionAll());
+    // }
 
 }

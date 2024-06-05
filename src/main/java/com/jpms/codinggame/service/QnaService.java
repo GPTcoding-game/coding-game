@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,6 +90,29 @@ public class QnaService {
                 .collect(Collectors.toList());
     }
 
+    // 특정 유저의 질문 가져오기
+    //위의 getQnaList의 페이징 형식을 그대로 따라 수정필요
+    public List<QnaResDto> getMyQna(Authentication authentication){
+        Long userId = (Long) authentication.getPrincipal();
+        Optional<User> optionalUser = userRepository.findById(userId);
+        // 잘못된 요청의 겨우 (authenticaiton에서 가져온 아이디로 조회가 안됨)
+        if(optionalUser.isEmpty()){
+            throw  new RuntimeException();
+        }
+
+        User user = optionalUser.get();
+        List<Qna> myQna = qnaRepository.findAllByUser(user);
+        return  myQna
+                .stream()
+                .map(qna -> QnaResDto
+                        .builder()
+                        .title(qna.getTitle())
+                        .content(qna.getContent())
+                        .time(LocalDate.now())
+                        .nickname(qna.getUser().getNickName())
+                        .build())
+                .collect(Collectors.toList());
+    }
 
     //특정 질문 가져오기
     public QnaResDto getQna(Long qnaId){

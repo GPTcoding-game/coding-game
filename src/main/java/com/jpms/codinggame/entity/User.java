@@ -38,7 +38,7 @@ public class User {
     private String email;
 
     @Column //누적점수
-    private int score;
+    private int totalScore;
 
     @Column
     private boolean isDone;
@@ -67,7 +67,7 @@ public class User {
         this.isDone = isDone;
     }
 
-    public void updateScore(int score){
-        this.score = score;
+    public void updateTotalScore(int totalScore){
+        this.totalScore = totalScore;
     }
 }

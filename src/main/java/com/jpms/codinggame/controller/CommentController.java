@@ -2,7 +2,7 @@ package com.jpms.codinggame.controller;
 
 import com.jpms.codinggame.dto.CommentCreateRequestDto;
 import com.jpms.codinggame.dto.CommentModifyRequestDto;
-import com.jpms.codinggame.dto.CommentResponseDto;
+import com.jpms.codinggame.dto.CommentResDto;
 import com.jpms.codinggame.global.dto.ApiResponse;
 import com.jpms.codinggame.global.dto.ResponseDto;
 import com.jpms.codinggame.service.CommentService;
@@ -39,7 +39,7 @@ public class CommentController {
     //답글(리스트) 가져오기 요청
     @GetMapping("/qna/{qnaId}/comments")
     @Operation(summary = "댓글 리스트 가져오기" , description = "List 형태로 리턴함. (페이징 해야할지 고민)")
-    public ApiResponse<List<CommentResponseDto>> getCommentList(
+    public ApiResponse<List<CommentResDto>> getCommentList(
             @PathVariable("qnaId") Long qnaId
     ){
         return new ApiResponse<>(HttpStatus.OK,commentService.getCommentList(qnaId));
@@ -68,4 +68,6 @@ public class CommentController {
         commentService.modifyComment(qnaId,commentId,dto,authentication);
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("댓글 수정 완료"));
     }
+
+
 }

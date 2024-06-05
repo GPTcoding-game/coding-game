@@ -2,7 +2,7 @@ package com.jpms.codinggame.service;
 
 import com.jpms.codinggame.dto.CommentCreateRequestDto;
 import com.jpms.codinggame.dto.CommentModifyRequestDto;
-import com.jpms.codinggame.dto.CommentResponseDto;
+import com.jpms.codinggame.dto.CommentResDto;
 import com.jpms.codinggame.entity.Comment;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.repository.CommentRepository;
@@ -40,12 +40,13 @@ public class CommentService {
                 .build());
     }
     //조회 (QNA 에 매핑 된 댓글 가져오기)
-    public List<CommentResponseDto> getCommentList(Long qnaId){
+    public List<CommentResDto> getCommentList(Long qnaId){
         List<Comment> commentList = commentRepository.findAllByQnaId(qnaId);
         return commentList
                 .stream()
-                .map(comment -> CommentResponseDto
+                .map(comment -> CommentResDto
                         .builder()
+                        .commentId(comment.getId())
                         .content(comment.getContent())
                         .nickname(comment.getUser().getNickName())
                         .time(LocalDate.now())
@@ -75,5 +76,18 @@ public class CommentService {
         User user2 = commentRepository.findById(commentId).get().getUser();
         if(user1 != user2) throw new RuntimeException();
         commentRepository.deleteById(commentId);
+    }
+
+    public List<CommentResDto> getRecent5Comment(){
+        List<Comment> commentList = commentRepository.findTop5ByOrderByIdDesc();
+        return commentList
+                .stream()
+                .map(comment -> CommentResDto
+                        .builder()
+                        .commentId(comment.getId())
+                        .nickname(comment.getUser().getNickName())
+                        .content(comment.getContent())
+                        .build())
+                .toList();
     }
 }

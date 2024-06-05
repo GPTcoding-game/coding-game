@@ -1,7 +1,6 @@
 package com.jpms.codinggame.service;
 
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
+import com.jpms.codinggame.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
@@ -50,6 +49,11 @@ public class RedisService {
         return hashOps.hasKey(key, hashKey);
     }
 
+    public Object getPossibleCount(User user) {return hashOps.get(String.valueOf(user.getId()),"possibleCount");}
+
+    public Object getTodayScore(User user) {return hashOps.get(String.valueOf(user.getId()),"score");}
+
+    public boolean isEmptyKey(String key) { return hashOps.values(key).isEmpty(); }
     /*
     * Key 함수
     * */

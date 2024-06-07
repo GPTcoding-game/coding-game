@@ -15,14 +15,6 @@ import java.time.Duration;
 public class GPTConfig {
 
 
-    @Value("${openai.model}")
-    public static String model;
-
-    @Value("${openai.api.url}")
-    public static String apiURL;
-
-    @Autowired
-    public static RestTemplate template;
 
     //타임아웃 시간 설정
     public final static Duration TIME_OUT = Duration.ofSeconds(300);

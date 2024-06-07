@@ -154,7 +154,7 @@ public class UserService {
         return UserInfoDto.builder()
                 .userName(user.getUserName())
                 .nickName(user.getNickName())
-                .score(user.getScore())
+                .score(user.getTotalScore())
                 .tier(user.getTier())
                 .address(user.getAddress())
                 .build();

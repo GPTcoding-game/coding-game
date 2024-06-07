@@ -50,6 +50,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                         jwtTokenUtil.getAuthentication(userId)
                 );
 
+
                 filterChain.doFilter(request, response);
                 return;
             }

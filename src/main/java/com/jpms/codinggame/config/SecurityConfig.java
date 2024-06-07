@@ -27,7 +27,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+
     private final JwtTokenFilter jwtTokenFilter;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public static BCryptPasswordEncoder bCryptPasswordEncoder(){
@@ -58,7 +61,15 @@ public class SecurityConfig {
 //                        .logoutSuccessUrl("/")
 //                        .invalidateHttpSession(true)
 //                )
-                .addFilterBefore(jwtTokenFilter, AuthorizationFilter.class)
+                .oauth2Login(oauth2Login ->
+                        oauth2Login
+                                .loginPage("/oauth2/authorization/google")
+                                .userInfoEndpoint(userInfoEndpoint ->
+                                        userInfoEndpoint.userService(customOAuth2UserService)
+                                )
+                                .successHandler(oAuth2LoginSuccessHandler)
+                )
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

@@ -44,8 +44,10 @@ public class AuthController {
     }
 
     @GetMapping("/loginSuccess")
-    public UserLoginResponseDto loginSuccess(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
-                                             HttpServletRequest request) throws Exception {
+    public UserLoginResponseDto loginSuccess(Authentication authentication,
+                                             HttpServletRequest request){
+
+        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
         if (oAuth2User == null) {
             throw new IllegalArgumentException("OAuth2User is null");

@@ -5,6 +5,9 @@ import com.jpms.codinggame.entity.Tier;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -51,7 +54,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             userRepository.save(user);
         }
 
-        return new CustomOAuth2User(user, oAuth2User.getAttributes());
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(user, oAuth2User.getAttributes());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return customOAuth2User;
     }
 }
 

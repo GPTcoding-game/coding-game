@@ -2,8 +2,11 @@ package com.jpms.codinggame.Oauth2;
 
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.global.dto.UserLoginResponseDto;
+import com.jpms.codinggame.jwt.CookieUtil;
 import com.jpms.codinggame.jwt.JwtTokenUtil;
 import com.jpms.codinggame.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +26,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
+import static com.jpms.codinggame.jwt.CookieUtil.getCookieValue;
+
 @RestController
 @RequestMapping("/auth")
 
@@ -37,16 +44,17 @@ public class AuthController {
     }
 
     @GetMapping("/loginSuccess")
-    public UserLoginResponseDto loginSuccess(@AuthenticationPrincipal OAuth2User oAuth2User) throws Exception {
+    public UserLoginResponseDto loginSuccess(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                             HttpServletRequest request) throws Exception {
+
         if (oAuth2User == null) {
             throw new IllegalArgumentException("OAuth2User is null");
         }
 
-        CustomOAuth2User customOAuth2User = (CustomOAuth2User) oAuth2User;
-        User user = customOAuth2User.getUser();
+        User user = oAuth2User.getUser();
 
-        String accessToken = jwtTokenUtil.createToken(user.getId(), "access");
-        String refreshToken = jwtTokenUtil.createToken(user.getId(), "refresh");
+        Optional<Cookie> accessTokenCookie = CookieUtil.getCookieValue(request, "accessToken");
+        Optional<Cookie> refreshTokenCookie = CookieUtil.getCookieValue(request, "refreshToken");
 
         return UserLoginResponseDto.builder()
                 .id(user.getId())
@@ -59,8 +67,8 @@ public class AuthController {
                 .address(user.getAddress())
                 .provider(user.getProvider())
                 .providerId(user.getProviderId())
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .accessToken(accessTokenCookie.get().getValue())
+                .refreshToken(refreshTokenCookie.get().getValue())
                 .build();
     }
 

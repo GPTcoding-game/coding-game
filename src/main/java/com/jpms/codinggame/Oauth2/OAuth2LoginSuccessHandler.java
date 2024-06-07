@@ -23,33 +23,30 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     }
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+    public void onAuthenticationSuccess(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        Authentication authentication) throws IOException {
+
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        CustomOAuth2User customOAuth2User = (CustomOAuth2User) oAuth2User;
+        User user = customOAuth2User.getUser();
 
-        if (oAuth2User instanceof CustomOAuth2User) {
-            CustomOAuth2User customOAuth2User = (CustomOAuth2User) oAuth2User;
-            User user = customOAuth2User.getUser();
-            String accessToken;
-            String refreshToken;
-            try {
-                accessToken = jwtTokenUtil.createToken(user.getId(), "access");
-                refreshToken = jwtTokenUtil.createToken(user.getId(), "refresh");
-
-                addTokensToResponse(response, accessToken, refreshToken);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            request.getSession().setAttribute("oauth2User", customOAuth2User);
-        } else {
-            throw new IllegalArgumentException("OAuth2User is not an instance of CustomOAuth2User");
+        String accessToken;
+        String refreshToken;
+        try {
+            accessToken = jwtTokenUtil.createToken(user.getId(), "access");
+            refreshToken = jwtTokenUtil.createToken(user.getId(), "refresh");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+
+        CookieUtil.createCookie(response, "accessToken", accessToken, (int) (JwtTokenUtil.accessTokenDuration / 1000));
+        CookieUtil.createCookie(response, "refreshToken", refreshToken, (int) (JwtTokenUtil.refreshTokenDuration / 1000));
+
+
+        request.getSession().setAttribute("oauth2User", customOAuth2User);
 
         response.sendRedirect("/auth/loginSuccess");
     }
 
-    private void addTokensToResponse(HttpServletResponse response, String accessToken, String refreshToken) {
-        CookieUtil.createCookie(response, "accessToken", accessToken, (int) (JwtTokenUtil.accessTokenDuration / 1000));
-        CookieUtil.createCookie(response, "refreshToken", refreshToken, (int) (JwtTokenUtil.refreshTokenDuration / 1000));
-    }
 }

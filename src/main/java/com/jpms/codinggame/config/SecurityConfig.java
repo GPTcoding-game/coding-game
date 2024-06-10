@@ -67,9 +67,12 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/signup", "/", "/login").permitAll()
-                        .requestMatchers("/auth/loginSuccess").authenticated() // 인증 필요
-                        .anyRequest().authenticated()
+                        .requestMatchers("/signup", "/", "/login", "/verify-email").permitAll()
+//                        .requestMatchers("/auth/loginSuccess").authenticated() // 인증 필요
+                        .anyRequest().permitAll()
+                )
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .oauth2Login(oauth2Login -> oauth2Login
                         .loginPage("/oauth2/authorization/google")
@@ -78,9 +81,7 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
-                .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtTokenFilter, AuthorizationFilter.class)
                 .build();
     }
 

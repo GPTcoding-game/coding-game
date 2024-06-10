@@ -51,7 +51,7 @@ public class UserService {
                 .tier(Tier.BRONZE)
                 .password(bCryptPasswordEncoder.encode(signupRequestDto.getPassword()))
                 .email(signupRequestDto.getEmail())
-                .score(0)
+                .totalScore(0)
                 .isDone(false)
                 .role(Role.ROLE_USER)
                 .address(signupRequestDto.getAddress())

@@ -32,26 +32,21 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         User user = principalDetails.getUser();
-        System.out.println("인증 성공");
+//        System.out.println("인증 성공");
 
         String accessToken;
         String refreshToken;
         try {
             accessToken = jwtTokenUtil.createToken(user.getId(), "access");
-            System.out.println("토큰 생성 완료");
+//            System.out.println("토큰 생성 완료");
             refreshToken = jwtTokenUtil.createToken(user.getId(), "refresh");
-            System.out.println("토큰 생성 완료");
+//            System.out.println("토큰 생성 완료");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
         CookieUtil.createCookie(response, "accessToken", accessToken, (int) (JwtTokenUtil.accessTokenDuration / 1000));
         CookieUtil.createCookie(response, "refreshToken", refreshToken, (int) (JwtTokenUtil.refreshTokenDuration / 1000));
-
-
-//        request.getSession().setAttribute("oauth2User", customOAuth2User);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        log.debug("Authentication set in SecurityContextHolder: " + SecurityContextHolder.getContext().getAuthentication());
 
         response.sendRedirect("/auth/loginSuccess");
     }

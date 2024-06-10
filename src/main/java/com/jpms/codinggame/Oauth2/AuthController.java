@@ -66,7 +66,7 @@ public class AuthController {
                 .userName(user.getUserName())
                 .email(user.getEmail())
                 .tier(user.getTier())
-                .score(user.getScore())
+                .score(user.getTotalScore())
                 .isDone(user.isDone())
                 .role(user.getRole())
                 .address(user.getAddress())

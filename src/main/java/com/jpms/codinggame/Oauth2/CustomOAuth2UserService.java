@@ -44,7 +44,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user = User.builder()
                     .userName(name)
                     .tier(Tier.BRONZE)
-                    .score(0)
+                    .totalScore(0)
                     .isDone(false)
                     .email(email)
                     .provider(provider)
@@ -55,8 +55,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
 
         PrincipalDetails principalDetails = new PrincipalDetails(user, oAuth2User.getAttributes());
-        Authentication authentication = new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
         return principalDetails;
     }
 }

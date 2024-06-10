@@ -8,12 +8,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "qna")
+@Table(name = "Qna")
 @Entity
 public class Qna {
     @Id
@@ -28,6 +29,9 @@ public class Qna {
 
     @Column
     private LocalDate time;
+
+    @OneToMany(mappedBy = "qna")
+    private List<Comment> commentList;
 
     @ManyToOne
     @JoinColumn(name="question_id")

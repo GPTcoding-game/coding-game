@@ -57,6 +57,7 @@ public class QnaService {
                 .question(questionRepository.findById(questionId).orElseThrow(RuntimeException::new))
                 .user(userRepository.findById((Long) authentication.getPrincipal()).orElseThrow(RuntimeException::new))
                 .time(LocalDate.now())
+                .commentList(qna.getCommentList())
                 .build());
     };
 
@@ -87,6 +88,7 @@ public class QnaService {
                         .content(qna.getContent())
                         .time(LocalDate.now())
                         .nickname(qna.getUser().getNickName())
+                        .commentVolume(qna.getCommentList().size())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -111,6 +113,7 @@ public class QnaService {
                         .content(qna.getContent())
                         .time(LocalDate.now())
                         .nickname(qna.getUser().getNickName())
+                        .commentVolume(qna.getCommentList().size())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -132,6 +135,7 @@ public class QnaService {
                         .title(qna.getTitle())
                         .nickname(qna.getUser().getNickName())
                         .content(qna.getContent())
+                        .commentVolume(qna.getCommentList().size())
                         .time(qna.getTime())
                         .build())
                 .toList();

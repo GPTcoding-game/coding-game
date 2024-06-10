@@ -16,6 +16,7 @@ public class QnaResDto {
     private String title;
     private LocalDate time;
     private String nickname;
+    private int commentVolume;
 //    private String userName;
 
     public static QnaResDto fromEntity(Qna qna){
@@ -26,6 +27,7 @@ public class QnaResDto {
                 .content(qna.getContent())
                 .time(qna.getTime())
                 .nickname(qna.getUser().getNickName())
+                .commentVolume(qna.getCommentList().size())
                 .build();
     }
 }

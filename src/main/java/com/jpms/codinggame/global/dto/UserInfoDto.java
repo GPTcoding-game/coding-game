@@ -15,7 +15,7 @@ public class UserInfoDto {
 
     private String nickName;
 
-    private int score;
+    private int totalScore;
 
     private Tier tier;
 

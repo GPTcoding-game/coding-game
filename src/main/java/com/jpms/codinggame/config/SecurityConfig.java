@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
@@ -43,35 +44,46 @@ public class SecurityConfig {
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
+
+// Oauth2를 사용하지 않는테스트에는 해당 메소드 사용
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//
+//        return http
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .authorizeHttpRequests(requests -> requests
+////                        .requestMatchers("/signup", "/", "/login").permitAll()
+//                                .anyRequest().permitAll()
+//                )
+//                .successHandler(oAuth2LoginSuccessHandler)
+//                )
+//                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+//                .build();
+//    }
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
-//                        .requestMatchers("/signup", "/", "/login").permitAll()
-                                .anyRequest().permitAll()
+                        .requestMatchers("/signup", "/", "/login").permitAll()
+                        .requestMatchers("/auth/loginSuccess").authenticated() // 인증 필요
+                        .anyRequest().authenticated()
                 )
-//                .formLogin(form -> form
-//                        .loginPage("/login")
-//                        .defaultSuccessUrl("/", true)
-//                        .permitAll()
-//                )
-//                .logout((logout) -> logout
-//                        .logoutSuccessUrl("/")
-//                        .invalidateHttpSession(true)
-//                )
-                .oauth2Login(oauth2Login ->
-                        oauth2Login
-                                .loginPage("/oauth2/authorization/google")
-                                .userInfoEndpoint(userInfoEndpoint ->
-                                        userInfoEndpoint.userService(customOAuth2UserService)
-                                )
-                                .successHandler(oAuth2LoginSuccessHandler)
+                .oauth2Login(oauth2Login -> oauth2Login
+                        .loginPage("/oauth2/authorization/google")
+                        .userInfoEndpoint(userInfoEndpoint ->
+                                userInfoEndpoint.userService(customOAuth2UserService)
+                        )
+                        .successHandler(oAuth2LoginSuccessHandler)
                 )
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
 
 
 }

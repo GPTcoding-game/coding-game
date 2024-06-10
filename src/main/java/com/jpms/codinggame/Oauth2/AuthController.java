@@ -7,11 +7,10 @@ import com.jpms.codinggame.jwt.JwtTokenUtil;
 import com.jpms.codinggame.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -26,6 +25,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.jpms.codinggame.jwt.CookieUtil.getCookieValue;
@@ -44,19 +45,21 @@ public class AuthController {
     }
 
     @GetMapping("/loginSuccess")
-    public UserLoginResponseDto loginSuccess(Authentication authentication,
-                                             HttpServletRequest request){
+    public UserLoginResponseDto loginSuccess(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                             HttpServletRequest request) {
 
-        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-
-        if (oAuth2User == null) {
-            throw new IllegalArgumentException("OAuth2User is null");
+        if (principalDetails == null) {
+            throw new IllegalArgumentException("UserPrincipal is null");
         }
 
-        User user = oAuth2User.getUser();
+        User user = principalDetails.getUser();
 
         Optional<Cookie> accessTokenCookie = CookieUtil.getCookieValue(request, "accessToken");
         Optional<Cookie> refreshTokenCookie = CookieUtil.getCookieValue(request, "refreshToken");
+
+        if (!accessTokenCookie.isPresent() || !refreshTokenCookie.isPresent()) {
+            throw new IllegalArgumentException("Access token or refresh token cookie is missing");
+        }
 
         return UserLoginResponseDto.builder()
                 .id(user.getId())

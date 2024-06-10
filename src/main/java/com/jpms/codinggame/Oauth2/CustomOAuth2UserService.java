@@ -54,10 +54,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             userRepository.save(user);
         }
 
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(user, oAuth2User.getAttributes());
-        Authentication authentication = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
+        PrincipalDetails principalDetails = new PrincipalDetails(user, oAuth2User.getAttributes());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return customOAuth2User;
+        return principalDetails;
     }
 }
 

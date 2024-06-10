@@ -4,6 +4,7 @@ import com.jpms.codinggame.entity.Question;
 import com.jpms.codinggame.entity.QuestionType;
 import com.jpms.codinggame.global.dto.GPTRequestDto;
 import com.jpms.codinggame.global.dto.GPTResponseDto;
+import com.jpms.codinggame.global.dto.QuestionInfoDto;
 import com.jpms.codinggame.repository.QuestionRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,7 +31,7 @@ public class GPTService {
                 "5가지의 보기가 주어지고 그 중 답을 고르는 문제입니다.\n" +
                 "다음 형식을 따라 작성해 주세요:\n" +
                 "문제: [여기에 문제를 적어 주세요]\n" +
-                "보기: [여기에 보기 5가지를 적어 주세요]\n" +
+                "보기: [여기에 숫자로 된 보기 5가지를 적어 주세요]\n" +
                 "답: [여기에 한자리 숫자로 된 답을 적어 주세요]";
         return prompt;
     }
@@ -132,6 +134,7 @@ public class GPTService {
 
         return modifiedPrompt.toString();
     }
+
 
 
 }

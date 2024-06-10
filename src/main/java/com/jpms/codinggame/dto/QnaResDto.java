@@ -11,17 +11,23 @@ import java.time.LocalDate;
 @Setter
 @Builder
 public class QnaResDto {
+    private Long qnaId;
     private String content;
     private String title;
     private LocalDate time;
+    private String nickname;
+    private int commentVolume;
 //    private String userName;
 
     public static QnaResDto fromEntity(Qna qna){
         return QnaResDto
                 .builder()
+                .qnaId(qna.getId())
                 .title(qna.getTitle())
                 .content(qna.getContent())
                 .time(qna.getTime())
+                .nickname(qna.getUser().getNickName())
+                .commentVolume(qna.getCommentList().size())
                 .build();
     }
 }

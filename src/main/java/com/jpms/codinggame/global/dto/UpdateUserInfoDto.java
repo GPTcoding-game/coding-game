@@ -7,9 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SignupRequestDto {
-
-    private String username;
+public class UpdateUserInfoDto {
 
     private String password;
 
@@ -19,8 +17,5 @@ public class SignupRequestDto {
 
     private String address;
 
-    private String email;
-
-    private int inputAuthNum;
-
 }
+

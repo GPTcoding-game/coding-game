@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "user")
+@Table(name = "User")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,7 +36,7 @@ public class User {
     private String email;
 
     @Column //누적점수
-    private int score;
+    private int totalScore;
 
     @Column
     private boolean isDone;
@@ -71,7 +71,17 @@ public class User {
         this.isDone = isDone;
     }
 
-    public void updateScore(int score){
-        this.score = score;
+    public void updateTotalScore(int totalScore){
+        this.totalScore = totalScore;
+    }
+
+    public void updateInfo(String password, String nickName, String address) {
+        this.password = password;
+        this.nickName = nickName;
+        this.address = address;
+    }
+
+    public void updateTempPassword(String tempPassword){
+        this.password = tempPassword;
     }
 }

@@ -5,8 +5,6 @@ import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,10 +30,10 @@ public class RankService {
 
         for (String key : keys) {
             Object scoreObj = redisService.get(key,"score");
-            Object usernameObj = redisService.get(key,"username");
+            Object nicknameObj = redisService.get(key,"nickname");
             RankResDto rankResDto = new RankResDto();
 
-            rankResDto.setUserName((String) usernameObj);
+            rankResDto.setNickname((String) nicknameObj);
             rankResDto.setScore((int) scoreObj);
 
             rankList.add(rankResDto);
@@ -55,15 +53,14 @@ public class RankService {
     * 누적 랭킹
     * */
     public List<RankResDto> getAllDayRank(){
-        //todo : 누적 랭킹 로직 작성
         //50명만 뽑기
-        List<User> userList = userRepository.findTop50ByOrderByScoreDesc();
+        List<User> userList = userRepository.findTop50ByOrderByTotalScoreDesc();
         return userList
                 .stream()
                 .map(user -> RankResDto
                         .builder()
-                        .userName(user.getUserName())
-                        .score(user.getScore())
+                        .nickname(user.getNickName())
+                        .score(user.getTotalScore())
                         .build())
                 .toList();
     }

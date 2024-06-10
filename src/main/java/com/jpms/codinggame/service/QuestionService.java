@@ -6,12 +6,10 @@ import com.jpms.codinggame.repository.QuestionRepository;
 import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,13 +23,8 @@ public class QuestionService {
     /*
     * 당일 생성 된 문제 가져오기
     * */
-    public List<QuestionResDto> getQuestionList(int volume){
-        List<Question> questionList = questionRepository.findAllByDate(LocalDate.now()).subList(0,volume);
-//        redisService.put("test1","key1",11);
-//        redisService.put("test1","key2","fifi");
-//        System.out.println(redisService.get("test1","key1"));
-//        System.out.println(redisService.get("test1","key2"));
-
+    public List<QuestionResDto> getQuestionList(){
+        List<Question> questionList = questionRepository.findAllByDate(LocalDate.now());
         return questionList
                 .stream()
                 .map(question -> QuestionResDto
@@ -87,9 +80,10 @@ public class QuestionService {
 
     /*
     * 이전 문제 전부 가져오기
+    * (REFACTOR : 날짜별 문제 가져오기)
     * */
-    public List<QuestionResDto> getPastQuestionAll(){
-        List<Question> questionList = questionRepository.findAllByDateNotToday(LocalDate.now());
+    public List<QuestionResDto> getPastQuestionByDate(LocalDate date){
+        List<Question> questionList = questionRepository.findAllByDate(date);
         return questionList
                 .stream()
                 .map(question -> QuestionResDto

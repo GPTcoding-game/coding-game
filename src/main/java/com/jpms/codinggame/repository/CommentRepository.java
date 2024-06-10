@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findAllByQnaId(Long qna_id);
+    List<Comment> findTop5ByOrderByIdDesc();
 }

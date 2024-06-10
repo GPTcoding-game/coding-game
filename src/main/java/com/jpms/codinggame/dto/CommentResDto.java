@@ -6,18 +6,20 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Builder
-public class CommentResponseDto {
+public class CommentResDto {
+    private Long commentId;
     private String content;
+    private String nickname;
     private LocalDate time;
 
-    static CommentResponseDto fromEntity(Comment comment){
-        return CommentResponseDto
+    static CommentResDto fromEntity(Comment comment){
+        return CommentResDto
                 .builder()
+                .commentId(comment.getId())
                 .content(comment.getContent())
                 .time(comment.getTime())
                 .build();

@@ -1,5 +1,6 @@
 package com.jpms.codinggame.service;
 
+import com.jpms.codinggame.Oauth2.PrincipalDetails;
 import com.jpms.codinggame.dto.QnaCreateRequestDto;
 import com.jpms.codinggame.dto.QnaModifyRequestDto;
 import com.jpms.codinggame.dto.QnaResDto;
@@ -31,12 +32,15 @@ public class QnaService {
             Long questionId,
             QnaCreateRequestDto dto,
             Authentication authentication){
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+
         qnaRepository.save(Qna
                         .builder()
                         .title(dto.getTitle())
                         .content(dto.getContent())
                         .question(questionRepository.findById(questionId).orElseThrow(RuntimeException::new))
-                        .user(userRepository.findById((Long) authentication.getPrincipal()).orElseThrow(RuntimeException::new))
+                        .user(user)
                         .time(LocalDate.now())
                         .build());
     }

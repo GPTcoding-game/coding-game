@@ -6,6 +6,7 @@ import com.jpms.codinggame.jwt.CookieUtil;
 import com.jpms.codinggame.jwt.JwtTokenUtil;
 import com.jpms.codinggame.service.EmailService;
 import com.jpms.codinggame.service.TempServerStorage;
+
 import com.jpms.codinggame.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+
     private final EmailService emailService;
     private final TempServerStorage tempServerStorage;
 

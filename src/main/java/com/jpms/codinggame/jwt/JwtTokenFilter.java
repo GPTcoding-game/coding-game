@@ -57,6 +57,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(
                         jwtTokenUtil.getAuthentication(userId)
                 );
+                log.debug("Authentication set in SecurityContextHolder for accessToken: " + SecurityContextHolder.getContext().getAuthentication());
+
 
                 filterChain.doFilter(request, response);
                 return;
@@ -90,6 +92,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(
                         jwtTokenUtil.getAuthentication(userId)
                 );
+                log.debug("Authentication set in SecurityContextHolder for accessToken: " + SecurityContextHolder.getContext().getAuthentication());
 
                 filterChain.doFilter(request, response);
                 return;

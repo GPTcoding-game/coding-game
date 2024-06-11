@@ -1,7 +1,9 @@
 package com.jpms.codinggame.service;
 
+import com.jpms.codinggame.Oauth2.PrincipalDetails;
 import com.jpms.codinggame.dto.QuestionResDto;
 import com.jpms.codinggame.entity.Question;
+import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.repository.QuestionRepository;
 import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,8 +43,11 @@ public class QuestionService {
     * 틀린 문제 가져오기
     * */
     public List<QuestionResDto> getIncorrectQuestionList(Authentication authentication){
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+
         List<Question> questionList = userRepository
-                .findById((Long) authentication.getPrincipal())
+                .findById(user.getId())
                 .orElseThrow(RuntimeException::new)
                 .getQuestionList();
 

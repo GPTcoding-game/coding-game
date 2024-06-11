@@ -1,5 +1,6 @@
 package com.jpms.codinggame.service;
 
+import com.jpms.codinggame.Oauth2.PrincipalDetails;
 import com.jpms.codinggame.dto.CommentCreateRequestDto;
 import com.jpms.codinggame.dto.CommentModifyRequestDto;
 import com.jpms.codinggame.dto.CommentResDto;
@@ -31,11 +32,14 @@ public class CommentService {
             Long qnaId,
             CommentCreateRequestDto dto,
             Authentication authentication){
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+
         commentRepository.save(Comment
                 .builder()
                 .content(dto.getContent())
                 .time(LocalDate.now())
-                .user(userRepository.findById((Long)authentication.getPrincipal()).orElseThrow(RuntimeException::new))
+                .user(user)
                 .qna(qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new))
                 .build());
     }
@@ -59,12 +63,15 @@ public class CommentService {
             Long commentId,
             CommentModifyRequestDto dto,
             Authentication authentication){
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+
         commentRepository.save(Comment
                 .builder()
                 .id(commentId)
                 .content(dto.getContent())
                 .time(LocalDate.now())
-                .user(userRepository.findById((Long) authentication.getPrincipal()).orElseThrow(RuntimeException::new))
+                .user(user)
                 .qna(qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new))
                 .build());
     }
@@ -72,7 +79,10 @@ public class CommentService {
     public void deleteComment(
             Long commentId,
             Authentication authentication){
-        User user1 = userRepository.findById((Long) authentication.getPrincipal()).orElseThrow(RuntimeException::new);
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+
+        User user1 = userRepository.findById(user.getId()).orElseThrow(RuntimeException::new);
         User user2 = commentRepository.findById(commentId).get().getUser();
         if(user1 != user2) throw new RuntimeException();
         commentRepository.deleteById(commentId);

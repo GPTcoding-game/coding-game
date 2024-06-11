@@ -37,15 +37,16 @@ public class GameController {
     public ApiResponse<List<QuestionResDto>> startGame(
             Authentication authentication
     ){
-        /*
-        * 이 부분은 main 화면에 처음 들어올때 생성하는거 어떤지
-        * */
-        //REDIS DATA 저장되어있는지 확인
-        if(gameService.isFirst(authentication)){
-            log.info("isEmpty");
-            //SET REDIS DATA
-            gameService.setRedisData(authentication);
-        }
+
+//        /*
+//        * 이 부분은 main 화면에 처음 들어올때 생성하는거 어떤지
+//        * */
+//        //REDIS DATA 저장되어있는지 확인
+//        if(gameService.isFirst(authentication)){
+//            log.info("isEmpty");
+//            //SET REDIS DATA
+//            gameService.setRedisData(authentication);
+//        }
 
         //참여횟수 1회 차감
         gameService.deductPossibleCount(authentication);

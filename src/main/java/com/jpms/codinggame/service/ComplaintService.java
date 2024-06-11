@@ -1,5 +1,6 @@
 package com.jpms.codinggame.service;
 
+import com.jpms.codinggame.Oauth2.PrincipalDetails;
 import com.jpms.codinggame.dto.ComplaintReqDto;
 import com.jpms.codinggame.dto.ComplaintResDto;
 import com.jpms.codinggame.entity.Complaint;
@@ -26,9 +27,8 @@ public class ComplaintService {
     public void createComplaint(
             ComplaintReqDto complaintReqDto,
             Authentication authentication){
-        User user = userRepository
-                .findById((Long) authentication.getPrincipal())
-                .orElseThrow(RuntimeException::new);
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
 
         //Qna 신고 저장
         if(complaintReqDto.getCommentId() == null){

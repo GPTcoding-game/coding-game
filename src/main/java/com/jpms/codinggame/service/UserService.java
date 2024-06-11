@@ -1,5 +1,7 @@
 package com.jpms.codinggame.service;
 
+import com.jpms.codinggame.Oauth2.PrincipalDetails;
+import com.jpms.codinggame.dto.MainInfoResDto;
 import com.jpms.codinggame.entity.Role;
 import com.jpms.codinggame.entity.Tier;
 import com.jpms.codinggame.entity.User;
@@ -25,6 +27,8 @@ public class UserService {
     private final JwtTokenUtil jwtTokenUtil;
     private final TempServerStorage tempServerStorage;
     private final EmailService emailService;
+    private final RedisService redisService;
+    private final RankService rankService;
 
 
     //회원가입 로직
@@ -131,11 +135,9 @@ public class UserService {
             UpdateUserInfoDto dto,
             Authentication authentication
     ){
-        Optional<User> optionalUser = userRepository.findById((Long) authentication.getPrincipal());
-        if(optionalUser.isEmpty()){
-            throw new RuntimeException();
-        }
-        User user = optionalUser.get();
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+
         user.updateInfo(dto.getPassword(), dto.getNickName(), dto.getAddress());
 
     }
@@ -149,11 +151,8 @@ public class UserService {
 
 
     public UserInfoDto getUserInfo(Authentication authentication) throws Exception {
-        Optional<User> optionalUser = userRepository.findById((Long) authentication.getPrincipal());
-        if(optionalUser.isEmpty()){
-            throw new RuntimeException();
-        }
-        User user = optionalUser.get();
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
 
         return UserInfoDto.builder()
                 .userName(user.getUserName())
@@ -162,5 +161,54 @@ public class UserService {
                 .tier(user.getTier())
                 .address(user.getAddress())
                 .build();
+    }
+
+    /*
+    * 메인화면 유저 정보 가져오기
+    * */
+    public MainInfoResDto getMainInfo(Authentication authentication){
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+
+        String todayRank =  String.valueOf(rankService.getMyTodayRank(user));
+        String allDayRank = String.valueOf(rankService.getMyAllDayRank(user));
+
+        if(todayRank.equals("0")) todayRank = "점수 없음";
+
+        return MainInfoResDto
+                .builder()
+                .nickName(user.getNickName())
+                .tier(user.getTier().toString())
+                .todayRank(todayRank)
+                .allDayRank(allDayRank)
+                .possibleCount(String.valueOf(redisService.getPossibleCount(user)))
+                .todayScore(String.valueOf(redisService.getTodayScore(user)))
+                .build();
+    }
+
+    /*
+    * Redis 에 데이터 생성되었는지 ( 오늘 처음 입장한 것인지 확인 )
+    * */
+    public void firstEntrance(Authentication authentication){
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+
+        if(!redisService.hasKey(String.valueOf(user.getId()),"score")){
+            setRedisData(user);
+        }
+    }
+
+    /*
+     * 최초 게임시작 시 redis data 세팅 메서드
+     * */
+    public void setRedisData(User user){
+        //REDIS 데이터 생성
+
+        //Key : userId , HashKey : "username" , Value : username
+        redisService.put(String.valueOf(user.getId()),"nickname",user.getNickName());
+        //Key : userId , HashKey : "score" , Value : score
+        redisService.put(String.valueOf(user.getId()),"score",0);
+        //Key : userId, HashKey : "possibleCount", Value : count (최초 3)
+        redisService.put(String.valueOf(user.getId()),"possibleCount",3);
     }
 }

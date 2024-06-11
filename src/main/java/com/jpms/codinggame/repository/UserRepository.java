@@ -23,4 +23,10 @@ public interface UserRepository extends JpaRepository<User,Long> {
     @Query("UPDATE User u SET u.isDone = true WHERE u.id = :id")
     @Transactional
     void updateState(@Param("id") Long id);
+
+    /*
+    * 누적 순위 계산 쿼리
+    * */
+    @Query("SELECT COUNT(u)+1 FROM User u WHERE u.totalScore > :totalScore")
+    int findRankByTotalScore(@Param("totalScore") int totalScore);
 }

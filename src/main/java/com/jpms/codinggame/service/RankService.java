@@ -22,7 +22,7 @@ public class RankService {
     /*
     * 당일 랭킹
     * */
-    public List<RankResDto> getTodayRank(){
+    public List<RankResDto> getTodayRankList(){
         List<RankResDto> rankList = new ArrayList<>();
 
         //key : userId
@@ -50,9 +50,9 @@ public class RankService {
     }
 
     /*
-    * 누적 랭킹
+    * 누적 랭킹 50명
     * */
-    public List<RankResDto> getAllDayRank(){
+    public List<RankResDto> getAllDayRankList(){
         //50명만 뽑기
         List<User> userList = userRepository.findTop50ByOrderByTotalScoreDesc();
         return userList
@@ -68,4 +68,28 @@ public class RankService {
     /*
     * 지역 랭킹
     * */
+
+    /*
+    * 나의 오늘 랭킹 가져오기
+    * */
+    public int getMyTodayRank(User user){
+        List<RankResDto> rankList = getTodayRankList();
+        int todayRank = 0;
+
+        for (RankResDto dto : rankList) {
+            if(dto.getNickname().equals(user.getUserName())){
+                todayRank = rankList.indexOf(dto) + 1;
+                break;
+            }
+        }
+
+        return todayRank;
+    }
+
+    /*
+    * 나의 누적 랭킹 가져오기
+    * */
+    public int getMyAllDayRank(User user){
+        return userRepository.findRankByTotalScore(user.getTotalScore());
+    }
 }

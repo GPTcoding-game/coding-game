@@ -53,13 +53,17 @@ public class QnaService {
             QnaModifyRequestDto dto,
             Authentication authentication){
         Qna qna = qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new);
+
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+
         qnaRepository.save(Qna
                 .builder()
                 .id(qna.getId())
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .question(questionRepository.findById(questionId).orElseThrow(RuntimeException::new))
-                .user(userRepository.findById((Long) authentication.getPrincipal()).orElseThrow(RuntimeException::new))
+                .user(user)
                 .time(LocalDate.now())
                 .commentList(qna.getCommentList())
                 .build());
@@ -68,8 +72,11 @@ public class QnaService {
 
     //삭제
     public void deleteQna(Long qnaId, Authentication authentication){
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+
         Qna qna = qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new);
-        User user = userRepository.findById((Long) authentication.getPrincipal()).orElseThrow(RuntimeException::new);
+
         if(qna.getUser() != user) throw new RuntimeException();
         qnaRepository.deleteById(qnaId);
     };
@@ -100,14 +107,9 @@ public class QnaService {
     // 특정 유저의 질문 가져오기
     //위의 getQnaList의 페이징 형식을 그대로 따라 수정필요
     public List<QnaResDto> getMyQna(Authentication authentication){
-        Long userId = (Long) authentication.getPrincipal();
-        Optional<User> optionalUser = userRepository.findById(userId);
-        // 잘못된 요청의 겨우 (authenticaiton에서 가져온 아이디로 조회가 안됨)
-        if(optionalUser.isEmpty()){
-            throw  new RuntimeException();
-        }
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
 
-        User user = optionalUser.get();
         List<Qna> myQna = qnaRepository.findAllByUser(user);
         return  myQna
                 .stream()

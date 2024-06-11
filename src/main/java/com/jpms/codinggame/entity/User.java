@@ -83,4 +83,6 @@ public class User {
     public void updateTempPassword(String tempPassword){
         this.password = tempPassword;
     }
+
+    public void addInfo(String nickName, String address){this.nickName = nickName; this.address = address;}
 }

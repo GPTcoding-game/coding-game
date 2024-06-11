@@ -34,6 +34,7 @@ public class QuestionService {
                         .questionId(question.getId())
                         .questionNo(question.getQuestionNo())
                         .content(question.getContent())
+                        .choice(question.getChoice())
                         .answer(question.getAnswer())
                         .build())
                 .toList();

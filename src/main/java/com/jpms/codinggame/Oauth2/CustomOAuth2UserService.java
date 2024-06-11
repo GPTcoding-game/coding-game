@@ -24,6 +24,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        System.out.println("Oauth 유저 불러오기");
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(
@@ -31,21 +32,27 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 oAuth2User.getAttributes()
         );
 
+
+
         String provider = userRequest.getClientRegistration().getRegistrationId();
         String providerId = oAuth2UserInfo.getId();
         String email = oAuth2UserInfo.getEmail();
         String name = oAuth2UserInfo.getName();
+
+
 
         Optional<User> optionalUser = userRepository.findByEmail(email);
         User user;
         if (optionalUser.isPresent()) {
             user = optionalUser.get();
         } else {
+
+            //여기서 주소렁 닉네임 설정해줄 수 있게
             user = User.builder()
                     .userName(name)
                     .tier(Tier.BRONZE)
                     .totalScore(0)
-                    .isDone(false)
+                    .isDone(true)
                     .email(email)
                     .provider(provider)
                     .providerId(providerId)

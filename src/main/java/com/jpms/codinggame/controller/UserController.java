@@ -76,7 +76,7 @@ public class UserController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인 요청" , description = "")
-    public String login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) throws Exception {
+    public ApiResponse<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) throws Exception {
         LoginResponseDto loginResponseDto = userService.login(loginRequestDto);
 
         //access Token
@@ -88,8 +88,7 @@ public class UserController {
                 loginResponseDto.getRefreshToken(),
                 (int) ((JwtTokenUtil.refreshTokenDuration/1000)));
 
-        return "access token : " + loginResponseDto.getAccessToken()
-                + "\nrefresh token : " + loginResponseDto.getRefreshToken();
+        return new ApiResponse<>(HttpStatus.OK, loginResponseDto);
     }
 
     @GetMapping("/getid")
@@ -97,6 +96,13 @@ public class UserController {
     public String test(Authentication authentication){
         Long id = (Long) authentication.getPrincipal();
         return (String.valueOf(id));
+    }
+
+    @PutMapping("/add-info")
+    @Operation(summary = "추가 정보 입력", description = "")
+    public ApiResponse<ResponseDto> addInfo(@RequestBody AddInfoDto addInfoDto, Authentication authentication){
+        userService.addOauthUserInfo(addInfoDto, authentication);
+        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("유저 정보 갱신 완료"));
     }
 
     @PostMapping("/test")

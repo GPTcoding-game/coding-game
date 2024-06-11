@@ -39,7 +39,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public static WebSecurityCustomizer webSecurityCustomizer(){
+    public static WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
@@ -67,21 +67,26 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/signup", "/", "/login", "/verify-email").permitAll()
-//                        .requestMatchers("/auth/loginSuccess").authenticated() // 인증 필요
-                        .anyRequest().permitAll()
+                        .requestMatchers(PermitAllEndpoint.getUrls()).permitAll()
+                        .requestMatchers("/auth/loginSuccess").authenticated() // 인증 필요
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                .formLogin(formLogin ->
+                        formLogin
+                                .loginPage("/login")
+                                .permitAll()
+                )
                 .oauth2Login(oauth2Login -> oauth2Login
-                        .loginPage("/oauth2/authorization/google")
+//                        .loginPage("/login")
                         .userInfoEndpoint(userInfoEndpoint ->
                                 userInfoEndpoint.userService(customOAuth2UserService)
                         )
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
-                .addFilterBefore(jwtTokenFilter, AuthorizationFilter.class)
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

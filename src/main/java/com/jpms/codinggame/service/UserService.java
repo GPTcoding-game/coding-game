@@ -31,6 +31,7 @@ public class UserService {
     private final RankService rankService;
 
 
+
     //회원가입 로직
     public void signUp(SignupRequestDto signupRequestDto) throws Exception {
         //이메일 중복 확인
@@ -56,7 +57,7 @@ public class UserService {
                 .password(bCryptPasswordEncoder.encode(signupRequestDto.getPassword()))
                 .email(signupRequestDto.getEmail())
                 .totalScore(0)
-                .isDone(false)
+                .isDone(true)
                 .role(Role.ROLE_USER)
                 .address(signupRequestDto.getAddress())
                 .build());
@@ -211,4 +212,10 @@ public class UserService {
         //Key : userId, HashKey : "possibleCount", Value : count (최초 3)
         redisService.put(String.valueOf(user.getId()),"possibleCount",3);
     }
+
+    public void addOauthUserInfo(AddInfoDto addInfoDto, Authentication authentication){
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+        user.addInfo(addInfoDto.getNickName(), addInfoDto.getAddress());
+    };
 }

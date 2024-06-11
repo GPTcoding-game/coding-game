@@ -3,12 +3,10 @@ package com.jpms.codinggame.config;
 import java.util.Arrays;
 
 public enum PermitAllEndpoint {
-
     SIGNUP("/signup"),
     ROOT("/"),
     LOGIN("/login"),
     VERIFY_EMAIL("/verify-email"),
-    AUTH_LOGIN_SUCCESS("/auth/loginSuccess"),
     USERS("/users/**");
 
     private final String url;

@@ -3,6 +3,7 @@ package com.jpms.codinggame.service;
 import com.jpms.codinggame.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.Set;
 public class RedisService {
 
     @Autowired
+    @Qualifier(value = "mainRedisTemplate")
     private RedisTemplate<String,Object> redisTemplate;
 
     private HashOperations<String,String,Object> hashOps;

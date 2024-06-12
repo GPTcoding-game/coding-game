@@ -17,25 +17,16 @@ public class RedisConfig {
     @Value("${spring.data.redis.host}")
     public String redisHost;
 
-    @Bean
-    public RedisConnectionFactory redisConnectionFactory(){
+//    @Bean
+    public RedisConnectionFactory redisConnectionFactory(int dbIndex){
         final RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setHostName(redisHost);
         redisStandaloneConfiguration.setPort(redisPort);
+        redisStandaloneConfiguration.setDatabase(dbIndex);
         return new LettuceConnectionFactory(redisStandaloneConfiguration);
     }
 
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate(){
-        RedisTemplate<String,Object> redisTemplate = new RedisTemplate<>();
-        // key : username
-        // value : 획득 점수 , RefreshToken .. 또 어떤 것을 넣을지 ?
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
-        redisTemplate.setEnableTransactionSupport(true);
-        redisTemplate.setConnectionFactory(redisConnectionFactory());
-        return redisTemplate;
-    }
+
 
 
 

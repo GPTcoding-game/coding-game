@@ -5,6 +5,7 @@ import com.jpms.codinggame.global.dto.*;
 import com.jpms.codinggame.jwt.CookieUtil;
 import com.jpms.codinggame.jwt.JwtTokenUtil;
 import com.jpms.codinggame.service.EmailService;
+import com.jpms.codinggame.service.SubRedisService;
 import com.jpms.codinggame.service.TempServerStorage;
 
 import com.jpms.codinggame.service.UserService;
@@ -28,6 +29,7 @@ public class UserController {
 
     private final EmailService emailService;
     private final TempServerStorage tempServerStorage;
+    private final SubRedisService subRedisService;
 
 
     @PostMapping("/signup")
@@ -111,8 +113,10 @@ public class UserController {
     }
 
 
-
-
+    @PostMapping("/redis/test")
+    public String testRedis(@RequestBody EmailVerificationRequestDto dto) {
+        if(subRedisService.getValue(dto.getEmail())== null) return "null값임";
+        return subRedisService.getValue(dto.getEmail());}
 
 
 }

@@ -7,7 +7,10 @@ public enum PermitAllEndpoint {
     ROOT("/"),
     LOGIN("/login"),
     VERIFY_EMAIL("/verify-email"),
-    USERS("/users/**");
+    USERS("/users/**"),
+    SWAGGER("/swagger-ui/**"),
+    V3("v3/**"),
+    GPT("/bot/**");
 
     private final String url;
 

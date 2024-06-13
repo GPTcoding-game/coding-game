@@ -1,10 +1,12 @@
 package com.jpms.codinggame.controller;
 
+import com.jpms.codinggame.Oauth2.PrincipalDetails;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.global.dto.*;
 import com.jpms.codinggame.jwt.CookieUtil;
 import com.jpms.codinggame.jwt.JwtTokenUtil;
 import com.jpms.codinggame.service.EmailService;
+import com.jpms.codinggame.service.RedisService;
 import com.jpms.codinggame.service.TempServerStorage;
 
 import com.jpms.codinggame.service.UserService;
@@ -25,9 +27,10 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-
     private final EmailService emailService;
     private final TempServerStorage tempServerStorage;
+
+//    private final SubRedisService subRedisService;
 
 
     @PostMapping("/signup")
@@ -70,6 +73,7 @@ public class UserController {
     @Operation(summary = "이메일 인증 요청", description = "")
     public ApiResponse<Void> sendVerificationEmail(@RequestBody EmailVerificationRequestDto emailVerificationRequestDto) {
         int authNum = emailService.sendSignupEmail(emailVerificationRequestDto.getEmail());
+//        subRedisService.setValue(emailVerificationRequestDto.getEmail(), authNum)
         tempServerStorage.saveVerificationCode(emailVerificationRequestDto.getEmail(), authNum);
         return new ApiResponse<>(HttpStatus.OK, null);
     }
@@ -101,8 +105,18 @@ public class UserController {
     @PutMapping("/add-info")
     @Operation(summary = "추가 정보 입력", description = "")
     public ApiResponse<ResponseDto> addInfo(@RequestBody AddInfoDto addInfoDto, Authentication authentication){
-        userService.addOauthUserInfo(addInfoDto, authentication);
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+        userService.addOauthUserInfo(addInfoDto, user);
         return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("유저 정보 갱신 완료"));
+    }
+
+    @GetMapping("/add-info")
+    @Operation(summary = "이미 입력되어 있는 정보 요청", description = "")
+    public ApiResponse<GetInfoResponseDto> getExistingInfo (Authentication authentication){
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+        return  new ApiResponse<>(HttpStatus.OK,userService.getCompulsoryInfo(user));
     }
 
     @PostMapping("/test")

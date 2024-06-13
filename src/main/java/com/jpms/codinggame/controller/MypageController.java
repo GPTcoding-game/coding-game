@@ -21,7 +21,7 @@ import java.util.List;
 @Tag(name ="마이페이지 Controller", description = "")
 @RestController
 @Slf4j
-@RequestMapping("/myapge")
+@RequestMapping("/mypage")
 @RequiredArgsConstructor
 public class MypageController {
 
@@ -41,7 +41,7 @@ public class MypageController {
 
     @GetMapping("/info")
     @Operation(summary = "내 정보 요청", description = "")
-    public ApiResponse<UserInfoDto> getUserInfo(Authentication authentication) throws Exception {
+    public ApiResponse<UserInfoDto> getUserInfo(Authentication authentication){
         UserInfoDto userInfo = userService.getUserInfo(authentication);
         return new ApiResponse<>(HttpStatus.OK, userInfo);
     }
@@ -51,4 +51,9 @@ public class MypageController {
     public ApiResponse<List<QnaResDto>> myQuestion (Authentication authentication){
         return new ApiResponse<>(HttpStatus.OK,qnaService.getMyQna(authentication));
     }
+
+    //  티어 나오는지 to String없이
+    // 랭크 구현 >> 랭크서비스 가져와서 my랭크  userInfoDTO에 넣어면된다
+
+    // 둘 다 완
 }

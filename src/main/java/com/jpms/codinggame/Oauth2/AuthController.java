@@ -8,6 +8,8 @@ import com.jpms.codinggame.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,24 +32,33 @@ public class AuthController {
 
     @GetMapping("/loginSuccess")
     @Operation(summary = "Oauth 로그인 성공" , description = "")
-    public ApiResponse<LoginResponseDto> loginSuccess(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                                      HttpServletRequest request) {
+    public ApiResponse<LoginResponseDto> loginSuccess(HttpSession session,
+                                                      HttpServletResponse response,
+                                                      HttpServletRequest request
+    ) {
+        System.out.println("페이지 호출");
 
-        String accessToken = null;
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            accessToken = authHeader.split(" ")[1];
-        }
+        //세션에서 억세스 토큰 추출
+        String accessToken = (String) session.getAttribute("accessToken");
+        System.out.println(accessToken);
+
+        // 리스폰스헤더에 억세스토큰 실어서 보내기
+        response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 
         System.out.println(accessToken);
 
-//        User user = principalDetails.getUser();
+        //쿠기에서 리프레쉬 토큰 추출
         Optional<Cookie> refreshTokenCookie = CookieUtil.getCookieValue(request, "refreshToken");
 
-            LoginResponseDto loginResponseDto = LoginResponseDto.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshTokenCookie.get().getValue())
-                    .build();
+
+        //세션에서 억세스 토큰 삭제
+        session.removeAttribute("accessToken");
+
+        // 가져온 정보로 dto 생성
+        LoginResponseDto loginResponseDto = LoginResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshTokenCookie.get().getValue())
+                .build();
 
             return new ApiResponse<>(HttpStatus.OK, loginResponseDto);
     }

@@ -37,7 +37,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String provider = userRequest.getClientRegistration().getRegistrationId();
         String providerId = oAuth2UserInfo.getId();
         String email = oAuth2UserInfo.getEmail();
-        String name = oAuth2UserInfo.getName();
 
 
 
@@ -49,7 +48,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             //여기서 주소렁 닉네임 설정해줄 수 있게
             user = User.builder()
-                    .userName(name)
                     .tier(Tier.BRONZE)
                     .totalScore(0)
                     .isDone(true)

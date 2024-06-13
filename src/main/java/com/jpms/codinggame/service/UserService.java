@@ -30,6 +30,8 @@ public class UserService {
     private final RedisService redisService;
     private final RankService rankService;
 
+//    private final SubRedisService subRedisService;
+
 
 
     //회원가입 로직
@@ -47,6 +49,7 @@ public class UserService {
 
         // 이메일 인증 로직
         int savedAuthNum = tempServerStorage.getVerificationCode(signupRequestDto.getEmail());
+//        int savedAuthNum = subRedisService.getValue(signupRequestDto.getEmail());
         if(signupRequestDto.getInputAuthNum() != savedAuthNum) throw new Exception();
 
 
@@ -74,6 +77,8 @@ public class UserService {
 
         String accessToken = jwtTokenUtil.createToken(user.getId(),"access");
         String refreshToken = jwtTokenUtil.createToken(user.getId(),"refresh");
+
+        redisService.put(String.valueOf(user.getId()), "refreshToken", refreshToken);
 
         return LoginResponseDto.builder()
                 .accessToken(accessToken)
@@ -151,7 +156,7 @@ public class UserService {
     }
 
 
-    public UserInfoDto getUserInfo(Authentication authentication) throws Exception {
+    public UserInfoDto getUserInfo(Authentication authentication){
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         User user = principalDetails.getUser();
 
@@ -161,6 +166,7 @@ public class UserService {
                 .totalScore(user.getTotalScore())
                 .tier(user.getTier())
                 .address(user.getAddress())
+                .todayRank(rankService.getMyTodayRank(user))
                 .build();
     }
 
@@ -213,9 +219,16 @@ public class UserService {
         redisService.put(String.valueOf(user.getId()),"possibleCount",3);
     }
 
-    public void addOauthUserInfo(AddInfoDto addInfoDto, Authentication authentication){
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        User user = principalDetails.getUser();
+    public void addOauthUserInfo(AddInfoDto addInfoDto, User user){
         user.addInfo(addInfoDto.getNickName(), addInfoDto.getAddress());
     };
+
+    public GetInfoResponseDto getCompulsoryInfo(User user){
+        return GetInfoResponseDto.builder()
+                .email(user.getEmail())
+                .address(user.getAddress())
+                .build();
+    }
+
+
 }

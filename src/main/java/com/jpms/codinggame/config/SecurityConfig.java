@@ -68,7 +68,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(PermitAllEndpoint.getUrls()).permitAll()
-                        .requestMatchers("/auth/loginSuccess").authenticated() // 인증 필요
+                        .requestMatchers("/auth/loginSuccess").permitAll() // 인증 필요
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManagement -> sessionManagement

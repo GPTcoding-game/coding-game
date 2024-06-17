@@ -6,6 +6,8 @@ import com.jpms.codinggame.dto.CommentModifyRequestDto;
 import com.jpms.codinggame.dto.CommentResDto;
 import com.jpms.codinggame.entity.Comment;
 import com.jpms.codinggame.entity.User;
+import com.jpms.codinggame.exception.CustomException;
+import com.jpms.codinggame.exception.ErrorCode;
 import com.jpms.codinggame.repository.CommentRepository;
 import com.jpms.codinggame.repository.QnaRepository;
 import com.jpms.codinggame.repository.UserRepository;
@@ -40,7 +42,7 @@ public class CommentService {
                 .content(dto.getContent())
                 .time(LocalDate.now())
                 .user(user)
-                .qna(qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new))
+                .qna(qnaRepository.findById(qnaId).orElseThrow(()->new CustomException(ErrorCode.INVALID_QNA_ID)))
                 .build());
     }
     //조회 (QNA 에 매핑 된 댓글 가져오기)
@@ -72,7 +74,7 @@ public class CommentService {
                 .content(dto.getContent())
                 .time(LocalDate.now())
                 .user(user)
-                .qna(qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new))
+                .qna(qnaRepository.findById(qnaId).orElseThrow(()->new CustomException(ErrorCode.INVALID_QNA_ID)))
                 .build());
     }
     //삭제 (authentication 확인)
@@ -82,9 +84,9 @@ public class CommentService {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         User user = principalDetails.getUser();
 
-        User user1 = userRepository.findById(user.getId()).orElseThrow(RuntimeException::new);
+        User user1 = userRepository.findById(user.getId()).orElseThrow(()->new CustomException(ErrorCode.USERNAME_NOT_FOUND));
         User user2 = commentRepository.findById(commentId).get().getUser();
-        if(user1 != user2) throw new RuntimeException();
+        if(user1 != user2) throw new CustomException(ErrorCode.DELETE_GRANT_EXCEPTION);
         commentRepository.deleteById(commentId);
     }
 

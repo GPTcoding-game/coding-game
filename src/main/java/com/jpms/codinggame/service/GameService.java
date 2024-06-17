@@ -5,6 +5,8 @@ import com.jpms.codinggame.dto.CheckAnswerReqDto;
 import com.jpms.codinggame.dto.CheckAnswerReqDto2;
 import com.jpms.codinggame.entity.Question;
 import com.jpms.codinggame.entity.User;
+import com.jpms.codinggame.exception.CustomException;
+import com.jpms.codinggame.exception.ErrorCode;
 import com.jpms.codinggame.repository.QuestionRepository;
 import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +46,7 @@ public class GameService {
         //참여횟수 0이면 isDone 필드값 false 로 상태변경
         if((int) redisHashService.get(String.valueOf(user.getId()),"possibleCount") < 0) {
             user.updateIsDone(false);
+            redisHashService.put(String.valueOf(user.getId()),"possibleCount","0");
             userRepository.save(user);
         };
 
@@ -132,7 +135,7 @@ public class GameService {
 
         Question question = questionRepository
                 .findById(dto.getQuestionId())
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(()->new CustomException(ErrorCode.INVALID_QUESTION_ID));
 
         List<Question> questionList = user.getQuestionList();
 
@@ -161,7 +164,7 @@ public class GameService {
 
         Question question = questionRepository
                 .findById(dto.getQuestionId())
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(()->new CustomException(ErrorCode.INVALID_QUESTION_ID));
 
         List<Question> questionList = user.getQuestionList();
 

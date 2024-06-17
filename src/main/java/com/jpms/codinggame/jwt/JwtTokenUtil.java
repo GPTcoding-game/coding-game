@@ -3,6 +3,7 @@ package com.jpms.codinggame.jwt;
 import com.jpms.codinggame.Oauth2.PrincipalDetails;
 import com.jpms.codinggame.encrpytion.AESUtil;
 import com.jpms.codinggame.entity.User;
+import com.jpms.codinggame.exception.CustomException;
 import com.jpms.codinggame.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -36,7 +37,7 @@ public class JwtTokenUtil {
     }
 
     //토큰 생성
-    public String createToken(long userId, String type) throws Exception {
+    public String createToken(long userId, String type) {
         System.out.println("토큰 생성 시작");
 
         long duration = 0;
@@ -75,8 +76,9 @@ public class JwtTokenUtil {
     }
 
     // 토큰을 파싱하여 암호화된 id 추출 후 복호화
-    public long getId(String token) throws Exception {
-        return aesUtil.decrypt(jwtParser.parseClaimsJws(token).getBody().getSubject());
+    public long getId(String token) {
+        String subject = jwtParser.parseClaimsJws(token).getBody().getSubject();
+        return aesUtil.decrypt(subject);
     }
 
     public Authentication getAuthentication(long userId) {

@@ -64,12 +64,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             String accessToken = authHeader.split(" ")[1];
             // access 토큰 유효성 검사
             if (jwtTokenUtil.validateToken(accessToken)) {
-
-                try {
-                    userId = jwtTokenUtil.getId(accessToken);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                userId = jwtTokenUtil.getId(accessToken);
                 // 사용자 인증 설정
                 SecurityContextHolder.getContext().setAuthentication(jwtTokenUtil.getAuthentication(userId));
                 filterChain.doFilter(request, response);
@@ -80,11 +75,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         // access 토큰이 없거나 만료된 경우
         if (refreshTokenCookie.isPresent()) {
             String refreshToken = refreshTokenCookie.get().getValue();
-            try {
-                userId = jwtTokenUtil.getId(refreshToken);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            userId = jwtTokenUtil.getId(refreshToken);
             String redisRefreshToken = (String) redisService.get(String.valueOf(userId), "refreshToken");
 
             // redis의 토큰과 대조
@@ -100,12 +91,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 //                }
 
                 // access 토큰 발급
-                String newAccessToken;
-                try {
-                    newAccessToken = jwtTokenUtil.createToken(userId, "access");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                String newAccessToken = jwtTokenUtil.createToken(userId, "access");;
 
                 // 새로 발급한 access 토큰을 헤더에 추가
                 response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + newAccessToken);

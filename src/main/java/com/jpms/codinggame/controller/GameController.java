@@ -3,6 +3,8 @@ package com.jpms.codinggame.controller;
 import com.jpms.codinggame.dto.CheckAnswerReqDto;
 import com.jpms.codinggame.dto.CheckAnswerReqDto2;
 import com.jpms.codinggame.dto.QuestionResDto;
+import com.jpms.codinggame.exception.CustomException;
+import com.jpms.codinggame.exception.ErrorCode;
 import com.jpms.codinggame.global.dto.ApiResponse;
 import com.jpms.codinggame.global.dto.ResponseDto;
 import com.jpms.codinggame.service.GameService;
@@ -51,8 +53,9 @@ public class GameController {
         //참여횟수 1회 차감
         gameService.deductPossibleCount(authentication);
 
+
         //게임 참여 가능 여부 파악
-        if(!gameService.isDone(authentication)) throw new RuntimeException("게임 참여횟수 초과");
+        if(!gameService.isDone(authentication)) throw new CustomException(ErrorCode.POSSIBLE_COUNT_EXCEPTION);
 
 
         return new ApiResponse<>(HttpStatus.OK,questionService.getQuestionList());

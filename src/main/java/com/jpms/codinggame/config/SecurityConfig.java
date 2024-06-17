@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -32,7 +33,7 @@ public class SecurityConfig {
     private final JwtTokenFilter jwtTokenFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
-
+//    private final AuthenticationEntryPoint authenticationEntryPoint;
     @Bean
     public static BCryptPasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder();
@@ -41,7 +42,8 @@ public class SecurityConfig {
     @Bean
     public static WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+                .requestMatchers( "/css/**", "/js/**", "/images/**");  // 필요한 경로 추가
     }
 
 
@@ -68,17 +70,17 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(PermitAllEndpoint.getUrls()).permitAll()
-                        .requestMatchers("/auth/loginSuccess").permitAll() // 인증 필요
+                        .requestMatchers("/auth/loginSuccess").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .formLogin(formLogin ->
-                        formLogin
-                                .loginPage("/login")
-                                .permitAll()
-                )
+//                .formLogin(formLogin ->
+//                        formLogin
+////                                .loginPage("/login")
+//                                .permitAll()
+//                )
                 .oauth2Login(oauth2Login -> oauth2Login
 //                        .loginPage("/login")
                         .userInfoEndpoint(userInfoEndpoint ->
@@ -87,6 +89,7 @@ public class SecurityConfig {
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+//                .exceptionHandling(handler -> handler.authenticationEntryPoint(authenticationEntryPoint))
                 .build();
     }
 

@@ -1,7 +1,5 @@
 package com.jpms.codinggame.scheduler;
 
-import com.jpms.codinggame.config.GPTConfig;
-import com.jpms.codinggame.controller.GPTController;
 import com.jpms.codinggame.service.GPTService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

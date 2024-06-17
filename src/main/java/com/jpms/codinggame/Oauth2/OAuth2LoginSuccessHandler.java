@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +24,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final UserRepository userRepository;
 
-    public OAuth2LoginSuccessHandler(JwtTokenUtil jwtTokenUtil, UserRepository userRepository) {
+    public OAuth2LoginSuccessHandler(
+            JwtTokenUtil jwtTokenUtil
+            , UserRepository userRepository
+    ) {
         this.jwtTokenUtil = jwtTokenUtil;
         this.userRepository = userRepository;
     }
@@ -55,6 +59,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         HttpSession session = request.getSession();
         session.setAttribute("accessToken", accessToken);
         CookieUtil.createCookie(response, "refreshToken", refreshToken, (int) (JwtTokenUtil.refreshTokenDuration / 1000));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // 처음 가입이면 추가 정보 기입 페이지로 리다이렉트
         if (nickname == null || nickname.isEmpty() || address == null || address.isEmpty()) {

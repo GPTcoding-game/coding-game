@@ -2,22 +2,33 @@ package com.jpms.codinggame.controller;
 
 import com.jpms.codinggame.Oauth2.PrincipalDetails;
 import com.jpms.codinggame.entity.User;
+import com.jpms.codinggame.exception.CustomException;
+import com.jpms.codinggame.exception.ErrorCode;
+import com.jpms.codinggame.exception.ValidationException;
 import com.jpms.codinggame.global.dto.*;
 import com.jpms.codinggame.jwt.CookieUtil;
 import com.jpms.codinggame.jwt.JwtTokenUtil;
+import com.jpms.codinggame.repository.UserRepository;
 import com.jpms.codinggame.service.EmailService;
-import com.jpms.codinggame.service.RedisService;
-import com.jpms.codinggame.service.TempServerStorage;
+import com.jpms.codinggame.service.SubRedisService;
 
 import com.jpms.codinggame.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -28,9 +39,12 @@ public class UserController {
 
     private final UserService userService;
     private final EmailService emailService;
-    private final TempServerStorage tempServerStorage;
+    private final UserRepository userRepository;
+    private final SubRedisService subRedisService;
 
-//    private final SubRedisService subRedisService;
+    private final JwtTokenUtil jwtTokenUtil;
+
+
 
 
     @PostMapping("/signup")
@@ -39,9 +53,11 @@ public class UserController {
         try {
             userService.signUp(signupRequestDto);
             return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("회원 가입 완료"));
-        } catch (Exception e) {
-            return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR,
-                    ResponseDto.getInstance("회원 가입 실패: " + e.getMessage()));
+        }  catch (ValidationException e) {
+            List<String> errorMessages = e.getErrorCodes().stream()
+                    .map(ErrorCode::getMessage)
+                    .collect(Collectors.toList());
+            return new ApiResponse<>(HttpStatus.BAD_REQUEST, ResponseDto.getInstance("회원 가입 실패: " + String.join(", ", errorMessages)));
         }
     }
 
@@ -51,8 +67,8 @@ public class UserController {
         try {
             userService.findAccountName(findUserNameDto);
             return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("아이디 찾기 이메일 발신 완료"));
-        } catch (Exception e) {
-            return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR,
+        } catch (CustomException e) {
+            return new ApiResponse<>(HttpStatus.BAD_REQUEST,
                     ResponseDto.getInstance("등록되지 않은 이메일입니다: " + e.getMessage()));
         }
     }
@@ -73,12 +89,12 @@ public class UserController {
     @Operation(summary = "이메일 인증 요청", description = "")
     public ApiResponse<Void> sendVerificationEmail(@RequestBody EmailVerificationRequestDto emailVerificationRequestDto) {
         int authNum = emailService.sendSignupEmail(emailVerificationRequestDto.getEmail());
-//        subRedisService.setValue(emailVerificationRequestDto.getEmail(), authNum)
-        tempServerStorage.saveVerificationCode(emailVerificationRequestDto.getEmail(), authNum);
+        subRedisService.setValue(emailVerificationRequestDto.getEmail(), String.valueOf(authNum));
+//        tempServerStorage.saveVerificationCode(emailVerificationRequestDto.getEmail(), authNum);
         return new ApiResponse<>(HttpStatus.OK, null);
     }
 
-    @PostMapping("/login")
+    @PostMapping("/signin")
     @Operation(summary = "로그인 요청" , description = "")
     public ApiResponse<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) throws Exception {
         LoginResponseDto loginResponseDto = userService.login(loginRequestDto);
@@ -102,22 +118,57 @@ public class UserController {
         return (String.valueOf(id));
     }
 
+
+    // 소셜로그인 추가정보를 하고 리스폰스에 바로 토큰을 부여할것인지 아니면 그냥 넘겨버릴껀지 고민해야됨
+    @GetMapping("/add-info")
+    @Operation(summary = "이미 입력되어 있는 정보 요청", description = "")
+    public ApiResponse<GetInfoResponseDto> getExistingInfo (HttpSession session
+                                                            , HttpServletResponse response
+                                                            , HttpServletRequest request
+//                                                            , Authentication authentication
+    ) throws Exception {
+//        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        String accessToken = (String) session.getAttribute("accessToken");
+        long id = jwtTokenUtil.getId(accessToken);
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(optionalUser.isEmpty()){throw new Exception();}
+
+        System.out.println(accessToken);
+
+        // 리스폰스헤더에 억세스토큰 실어서 보내기
+        response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+
+        System.out.println(accessToken);
+
+        //쿠기에서 리프레쉬 토큰 추출
+        Optional<Cookie> refreshTokenCookie = CookieUtil.getCookieValue(request, "refreshToken");
+
+
+        //세션에서 억세스 토큰 삭제
+        session.removeAttribute("accessToken");
+//        User user = principalDetails.getUser();
+        return  new ApiResponse<>(HttpStatus.OK,userService.getCompulsoryInfo(optionalUser.get()));
+    }
+
     @PutMapping("/add-info")
     @Operation(summary = "추가 정보 입력", description = "")
-    public ApiResponse<ResponseDto> addInfo(@RequestBody AddInfoDto addInfoDto, Authentication authentication){
+    public ApiResponse<ResponseDto> addInfo(@RequestBody AddInfoDto addInfoDto, Authentication authentication) throws Exception {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         User user = principalDetails.getUser();
         userService.addOauthUserInfo(addInfoDto, user);
         return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("유저 정보 갱신 완료"));
     }
 
-    @GetMapping("/add-info")
-    @Operation(summary = "이미 입력되어 있는 정보 요청", description = "")
-    public ApiResponse<GetInfoResponseDto> getExistingInfo (Authentication authentication){
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        User user = principalDetails.getUser();
-        return  new ApiResponse<>(HttpStatus.OK,userService.getCompulsoryInfo(user));
+    @PostMapping("/logout")
+    @Operation(summary = "로그 아웃 실행", description = "")
+    public ApiResponse<ResponseDto> logOut(Authentication authentication,
+                                           HttpSession session,
+                                           HttpServletRequest request,
+                                           HttpServletResponse response) {
+        userService.logOut(authentication, session, request, response);
+        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("로그아웃 되었습니다."));
     }
+
 
     @PostMapping("/test")
     public String test() {
@@ -125,8 +176,10 @@ public class UserController {
     }
 
 
-
-
+    @PostMapping("/redis/test")
+    public String testRedis(@RequestBody EmailVerificationRequestDto dto) {
+        if(subRedisService.getValue(dto.getEmail())== null) return "null값임";
+        return subRedisService.getValue(dto.getEmail());}
 
 
 }

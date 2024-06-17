@@ -12,6 +12,7 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     private static final String senderEmail= "gptcodinggame@gmail.com";
     private static int number;
+    private final SubRedisService subRedisService;
 
     // 랜덤 인증 코드 생성
     public static void createNumber() {
@@ -48,6 +49,7 @@ public class EmailService {
     public int sendSignupEmail(String email) {
         MimeMessage message = createSignupMail(email);
         javaMailSender.send(message);
+        subRedisService.setValue(email,String.valueOf(number));
 
         // 인증 코드 전달
         return number;

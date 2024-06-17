@@ -7,6 +7,6 @@ import lombok.Data;
 @Builder
 public class GetInfoResponseDto {
     private String email;
-
+    private String nickName;
     private String address;
 }

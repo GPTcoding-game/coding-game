@@ -33,7 +33,7 @@ public class SecurityConfig {
     private final JwtTokenFilter jwtTokenFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
-//    private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
     @Bean
     public static BCryptPasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder();
@@ -88,8 +88,8 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
+                .exceptionHandling(handler -> handler.authenticationEntryPoint(authenticationEntryPoint))
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
-//                .exceptionHandling(handler -> handler.authenticationEntryPoint(authenticationEntryPoint))
                 .build();
     }
 

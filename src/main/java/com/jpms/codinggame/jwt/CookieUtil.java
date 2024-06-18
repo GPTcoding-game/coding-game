@@ -3,9 +3,10 @@ package com.jpms.codinggame.jwt;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-
+@Component
 public class CookieUtil {
 
     // 쿠키 생성 메소드

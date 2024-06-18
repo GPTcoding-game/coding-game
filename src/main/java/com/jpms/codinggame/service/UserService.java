@@ -49,7 +49,7 @@ public class UserService {
     public void signUp(SignupRequestDto signupRequestDto) throws ValidationException {
         List<ErrorCode> errorCodes = new ArrayList<>();
 
-        // 이메일 중복 확인
+        // 이메일 중복 확인 >> 이메일 보내는걸로 옮기기
         Optional<User> optionalUser = userRepository.findByEmail(signupRequestDto.getEmail());
         if (optionalUser.isPresent()) errorCodes.add(ErrorCode.EXISTING_EMAIL_EXCEPTION);
 
@@ -61,9 +61,9 @@ public class UserService {
         Optional<User> optionalUser2 = userRepository.findByNickName(signupRequestDto.getNickName());
         if (optionalUser2.isPresent()) errorCodes.add(ErrorCode.EXISTING_NICKNAME_EXCEPTION);
 
-        // 비밀번호와 비밀번호 확인이 모두 일치하는지
-        if (!passwordCheck(signupRequestDto.getPassword(), signupRequestDto.getCheckPassword()))
-            errorCodes.add(ErrorCode.PASSWORD_CHECK_FAILED);
+        // 비밀번호와 비밀번호 확인이 모두 일치하는지 >> 비밀번호
+//        if (!passwordCheck(signupRequestDto.getPassword(), signupRequestDto.getCheckPassword()))
+//            errorCodes.add(ErrorCode.PASSWORD_CHECK_FAILED);
 
         // 이메일 인증 로직
         int savedAuthNum = Integer.parseInt(subRedisService.getValue(signupRequestDto.getEmail()));

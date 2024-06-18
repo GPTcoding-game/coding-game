@@ -5,17 +5,30 @@ import com.jpms.codinggame.dto.MainInfoResDto;
 import com.jpms.codinggame.entity.Role;
 import com.jpms.codinggame.entity.Tier;
 import com.jpms.codinggame.entity.User;
+import com.jpms.codinggame.exception.CustomException;
+import com.jpms.codinggame.exception.ErrorCode;
+import com.jpms.codinggame.exception.ValidationErrorCode;
+import com.jpms.codinggame.exception.ValidationException;
 import com.jpms.codinggame.global.dto.*;
+import com.jpms.codinggame.jwt.CookieUtil;
 import com.jpms.codinggame.jwt.JwtTokenUtil;
 import com.jpms.codinggame.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+
+import static com.jpms.codinggame.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,31 +38,40 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
-    private final TempServerStorage tempServerStorage;
     private final EmailService emailService;
     private final RedisService redisService;
     private final RankService rankService;
+    private final CookieUtil cookieUtil;
+    private final SubRedisService subRedisService;
 
 
 
     //회원가입 로직
-    public void signUp(SignupRequestDto signupRequestDto) throws Exception {
-        //이메일 중복 확인
-        Optional<User> optionalUser = userRepository.findByEmail(signupRequestDto.getEmail());
-        if (optionalUser.isPresent()) throw new Exception();
+    public void signUp(SignupRequestDto signupRequestDto) throws ValidationException {
+        List<ValidationErrorCode> errorCodes = new ArrayList<>();
 
-        //닉네임 중복 확인
+        // 아이디 중복 확인
         Optional<User> optionalUser1 = userRepository.findByUserName(signupRequestDto.getUsername());
-        if (optionalUser1.isPresent()) throw new Exception();
+        if (optionalUser1.isPresent()) errorCodes.add(ValidationErrorCode.EXISTING_USERNAME_EXCEPTION);
 
-        // 비밀번호와 비밀번호 확인이 모두 일치하는지
-        if(!passwordCheck(signupRequestDto.getPassword(), signupRequestDto.getCheckPassword())) throw new Exception();
+        // 닉네임 중복 확인
+        Optional<User> optionalUser2 = userRepository.findByNickName(signupRequestDto.getNickName());
+        if (optionalUser2.isPresent()) errorCodes.add(ValidationErrorCode.EXISTING_NICKNAME_EXCEPTION);
+
+        // 비밀번호와 비밀번호 확인이 모두 일치하는지 >> 비밀번호
+//        if (!passwordCheck(signupRequestDto.getPassword(), signupRequestDto.getCheckPassword()))
+//            errorCodes.add(ErrorCode.PASSWORD_CHECK_FAILED);
 
         // 이메일 인증 로직
-        int savedAuthNum = tempServerStorage.getVerificationCode(signupRequestDto.getEmail());
-        if(signupRequestDto.getInputAuthNum() != savedAuthNum) throw new Exception();
+        int savedAuthNum = Integer.parseInt(subRedisService.getValue(signupRequestDto.getEmail()));
+        if (signupRequestDto.getInputAuthNum() != savedAuthNum) errorCodes.add(ValidationErrorCode.EMAIL_VERIFICATION_FAILED);
 
+        // 예외가 하나라도 있으면 ValidationException 던지기
+        if (!errorCodes.isEmpty()) {
+            throw new ValidationException(errorCodes);
+        }
 
+        // 예외가 없으면 유저 저장
         userRepository.save(User.builder()
                 .userName(signupRequestDto.getUsername())
                 .nickName(signupRequestDto.getNickName())
@@ -63,17 +85,19 @@ public class UserService {
                 .build());
     }
 
-    public LoginResponseDto login(LoginRequestDto loginRequestDto) throws Exception {
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) throws CustomException {
 
         Optional<User> optionalUser = userRepository.findByUserName(loginRequestDto.getUsername());
-        if (optionalUser.isEmpty()) throw new Exception();
+        if (optionalUser.isEmpty()) throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);
         else if (!bCryptPasswordEncoder.matches(loginRequestDto.getPassword(), optionalUser.get().getPassword()))
-            throw new Exception();
+            throw new CustomException(ErrorCode.PASSWORD_INVALID);
 
         User user = optionalUser.get();
 
         String accessToken = jwtTokenUtil.createToken(user.getId(),"access");
         String refreshToken = jwtTokenUtil.createToken(user.getId(),"refresh");
+
+        redisService.put(String.valueOf(user.getId()), "refreshToken", refreshToken);
 
         return LoginResponseDto.builder()
                 .accessToken(accessToken)
@@ -83,10 +107,10 @@ public class UserService {
     }
 
     // 아이디 찾기
-    public void findAccountName(FindUserNameDto findAccountNameDto) throws Exception{
+    public void findAccountName(FindUserNameDto findAccountNameDto) throws CustomException{
         // 회원 존재 여부 확인
         Optional<User> optionalUser = userRepository.findByEmail(findAccountNameDto.getEmail());
-        if (optionalUser.isEmpty()) throw new Exception();
+        if (optionalUser.isEmpty()) throw new CustomException(ErrorCode.EMAIL_NOT_FOUND);
 
         // 이메일 발송
         emailService.sendFindAccountEmail(optionalUser.get().getEmail(), optionalUser.get().getUserName());
@@ -95,14 +119,14 @@ public class UserService {
 
     // 비밀번호 찾기
     @Transactional
-    public void findPassword(FindPasswordDto findPasswordDto) throws Exception{
+    public void findPassword(FindPasswordDto findPasswordDto) throws CustomException{
         // 회원 존재 여부 확인
         Optional<User> optionalUser = userRepository.findByUserName(findPasswordDto.getUserName());
-        if (optionalUser.isEmpty()) throw new Exception();
+        if (optionalUser.isEmpty()) throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);
         User user = optionalUser.get();
 
         //이메일 일치 확인
-        if(!findPasswordDto.getEmail().matches(user.getEmail())) throw new Exception();
+        if(!findPasswordDto.getEmail().matches(user.getEmail())) throw new CustomException(ErrorCode.EMAIL_MISMATCH_EXCEPTION);
         String email = user.getEmail();
 
         // 임시 비밀번호 생성
@@ -151,7 +175,7 @@ public class UserService {
     }
 
 
-    public UserInfoDto getUserInfo(Authentication authentication) throws Exception {
+    public UserInfoDto getUserInfo(Authentication authentication){
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         User user = principalDetails.getUser();
 
@@ -161,6 +185,7 @@ public class UserService {
                 .totalScore(user.getTotalScore())
                 .tier(user.getTier())
                 .address(user.getAddress())
+                .todayRank(rankService.getMyTodayRank(user))
                 .build();
     }
 
@@ -213,9 +238,34 @@ public class UserService {
         redisService.put(String.valueOf(user.getId()),"possibleCount",3);
     }
 
-    public void addOauthUserInfo(AddInfoDto addInfoDto, Authentication authentication){
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        User user = principalDetails.getUser();
+    public void addOauthUserInfo(AddInfoDto addInfoDto, User user) throws CustomException {
+        Optional<User> optionalUser = userRepository.findByNickName(addInfoDto.getNickName());
+        if(optionalUser.isPresent()){throw new CustomException(ErrorCode.EXISTING_NICKNAME_EXCEPTION);}
         user.addInfo(addInfoDto.getNickName(), addInfoDto.getAddress());
     };
+
+    public GetInfoResponseDto getCompulsoryInfo(User user){
+        return GetInfoResponseDto.builder()
+                .email(user.getEmail())
+                .nickName(user.getNickName())
+                .address(user.getAddress())
+                .build();
+    }
+
+
+    public void logOut(Authentication authentication, HttpSession session, HttpServletRequest request, HttpServletResponse response) {
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        long userId = principalDetails.getId();
+
+        // 리프레시 토큰 삭제
+        redisService.delete(String.valueOf(userId), "refreshToken");
+
+        // 세션 무효화
+        session.invalidate();
+
+        // 리프레시 토큰 쿠키 삭제
+        cookieUtil.deleteCookie(request, response, "refreshToken");
+    }
+
+
 }

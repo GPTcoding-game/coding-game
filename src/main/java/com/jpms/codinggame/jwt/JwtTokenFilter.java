@@ -1,11 +1,14 @@
 package com.jpms.codinggame.jwt;
 
 import com.jpms.codinggame.config.PermitAllEndpoint;
+import com.jpms.codinggame.service.RedisService;
+import jakarta.mail.Address;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,8 +24,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final JwtTokenUtil jwtTokenUtil;
 
-    public JwtTokenFilter(JwtTokenUtil jwtTokenUtil) {
+    private final RedisService redisService;
+
+    public JwtTokenFilter(JwtTokenUtil jwtTokenUtil, RedisService redisService) {
         this.jwtTokenUtil = jwtTokenUtil;
+        this.redisService = redisService;
     }
 
 
@@ -52,17 +58,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 return;
             }
         }
+        Long userId;
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String accessToken = authHeader.split(" ")[1];
             // access 토큰 유효성 검사
             if (jwtTokenUtil.validateToken(accessToken)) {
-                Long userId;
-                try {
-                    userId = jwtTokenUtil.getId(accessToken);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                userId = jwtTokenUtil.getId(accessToken);
                 // 사용자 인증 설정
                 SecurityContextHolder.getContext().setAuthentication(jwtTokenUtil.getAuthentication(userId));
                 filterChain.doFilter(request, response);
@@ -73,23 +75,23 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         // access 토큰이 없거나 만료된 경우
         if (refreshTokenCookie.isPresent()) {
             String refreshToken = refreshTokenCookie.get().getValue();
+            userId = jwtTokenUtil.getId(refreshToken);
+            String redisRefreshToken = (String) redisService.get(String.valueOf(userId), "refreshToken");
+
+            // redis의 토큰과 대조
+            if(!refreshToken.equals(redisRefreshToken)) throw new RuntimeException();
 
             // refresh 토큰 유효성 검사
             if (jwtTokenUtil.validateToken(refreshToken)) {
-                long userId;
-                try {
-                    userId = jwtTokenUtil.getId(refreshToken);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+//                long userId;
+//                try {
+//                    userId = jwtTokenUtil.getId(refreshToken);
+//                } catch (Exception e) {
+//                    throw new RuntimeException(e);
+//                }
 
                 // access 토큰 발급
-                String newAccessToken;
-                try {
-                    newAccessToken = jwtTokenUtil.createToken(userId, "access");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                String newAccessToken = jwtTokenUtil.createToken(userId, "access");;
 
                 // 새로 발급한 access 토큰을 헤더에 추가
                 response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + newAccessToken);

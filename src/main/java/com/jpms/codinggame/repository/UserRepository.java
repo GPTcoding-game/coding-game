@@ -29,4 +29,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
     * */
     @Query("SELECT COUNT(u)+1 FROM User u WHERE u.totalScore > :totalScore")
     int findRankByTotalScore(@Param("totalScore") int totalScore);
+
+    Optional<User> findByNickName(String nickName);
 }

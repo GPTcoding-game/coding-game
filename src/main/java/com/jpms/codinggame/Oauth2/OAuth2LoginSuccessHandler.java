@@ -3,13 +3,13 @@ package com.jpms.codinggame.Oauth2;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.jwt.CookieUtil;
 import com.jpms.codinggame.jwt.JwtTokenUtil;
+import com.jpms.codinggame.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +22,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final JwtTokenUtil jwtTokenUtil;
 
-    public OAuth2LoginSuccessHandler(JwtTokenUtil jwtTokenUtil) {
+    private final UserRepository userRepository;
+
+    public OAuth2LoginSuccessHandler(
+            JwtTokenUtil jwtTokenUtil
+            , UserRepository userRepository
+    ) {
         this.jwtTokenUtil = jwtTokenUtil;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -46,21 +52,25 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             throw new RuntimeException(e);
         }
 
-        response.setHeader("Authorization","Bearer " + accessToken);
+        // 유저의 nickname과 address 확인
+        String nickname = user.getNickName();
+        String address = user.getAddress();
+
+        HttpSession session = request.getSession();
+        session.setAttribute("accessToken", accessToken);
         CookieUtil.createCookie(response, "refreshToken", refreshToken, (int) (JwtTokenUtil.refreshTokenDuration / 1000));
 
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // onAuthenticationSuccess 가 void값을 반환함으로 APIResponse를 풀어서 직접 보낸다
-        response.setStatus(HttpStatus.OK.value());
+        // 처음 가입이면 추가 정보 기입 페이지로 리다이렉트
+        if (nickname == null || nickname.isEmpty() || address == null || address.isEmpty()) {
+            response.sendRedirect("/users/add-info");
+            return;
+        }
 
 
+        response.sendRedirect("/auth/loginSuccess");
 
-//        response.sendRedirect("/auth/loginSuccess");
-        response.setStatus(HttpStatus.OK.value());
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"accessToken\": \"" + accessToken +
-                "\", \"refreshToken\": \"" + refreshToken + "\"}");
 
 
     }

@@ -31,7 +31,7 @@ public class User {
     @Column
     private String password;
 
-    @Column
+    @Column(unique = true)
     private String email;
 
     @Column //누적점수

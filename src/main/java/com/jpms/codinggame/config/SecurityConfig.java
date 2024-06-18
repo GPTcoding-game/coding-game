@@ -42,7 +42,8 @@ public class SecurityConfig {
     @Bean
     public static WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+                .requestMatchers( "/css/**", "/js/**", "/images/**");  // 필요한 경로 추가
     }
 
 
@@ -69,17 +70,17 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(PermitAllEndpoint.getUrls()).permitAll()
-                        .requestMatchers("/auth/loginSuccess").authenticated() // 인증 필요
+                        .requestMatchers("/auth/loginSuccess").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .formLogin(formLogin ->
-                        formLogin
-                                .loginPage("/login")
-                                .permitAll()
-                )
+//                .formLogin(formLogin ->
+//                        formLogin
+////                                .loginPage("/login")
+//                                .permitAll()
+//                )
                 .oauth2Login(oauth2Login -> oauth2Login
 //                        .loginPage("/login")
                         .userInfoEndpoint(userInfoEndpoint ->
@@ -87,8 +88,8 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(handler -> handler.authenticationEntryPoint(authenticationEntryPoint))
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

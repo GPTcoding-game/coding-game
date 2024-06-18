@@ -3,9 +3,10 @@ package com.jpms.codinggame.jwt;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-
+@Component
 public class CookieUtil {
 
     // 쿠키 생성 메소드
@@ -27,5 +28,19 @@ public class CookieUtil {
             }
         }
         return Optional.empty();
+    }
+
+    public static void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null && cookies.length > 0) {
+            for (Cookie cookie: cookies) {
+                if (cookie.getName().equals(name)) {
+                    cookie.setValue("");
+                    cookie.setPath("/");
+                    cookie.setMaxAge(0);
+                    response.addCookie(cookie);
+                }
+            }
+        }
     }
 }

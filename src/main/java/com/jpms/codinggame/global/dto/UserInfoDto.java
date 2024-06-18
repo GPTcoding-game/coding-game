@@ -20,4 +20,6 @@ public class UserInfoDto {
     private Tier tier;
 
     private String address;
+
+    private int todayRank;
 }

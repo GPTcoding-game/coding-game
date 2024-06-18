@@ -87,7 +87,7 @@ public class GPTService {
                 .answer(answer)
                 .choice(choice)
                 .date(today)
-//                .questionType(qType)
+                .questionType(qType)
                 .questionNo(newQuestionNo)
                 .build());
 
@@ -134,6 +134,8 @@ public class GPTService {
 
         return modifiedPrompt.toString();
     }
+
+    // choice 안되는 부분이 있어
 
 
 

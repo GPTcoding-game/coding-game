@@ -1,9 +1,17 @@
 package com.jpms.codinggame.service;
 
+import com.jpms.codinggame.entity.User;
+import com.jpms.codinggame.exception.CustomException;
+import com.jpms.codinggame.exception.ErrorCode;
+import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import jakarta.mail.internet.MimeMessage;
+
+import java.util.Optional;
+
+import static com.jpms.codinggame.exception.ErrorCode.EXISTING_EMAIL_EXCEPTION;
 
 @Service
 @RequiredArgsConstructor
@@ -13,6 +21,7 @@ public class EmailService {
     private static final String senderEmail= "gptcodinggame@gmail.com";
     private static int number;
     private final SubRedisService subRedisService;
+    private final UserRepository userRepository;
 
     // 랜덤 인증 코드 생성
     public static void createNumber() {
@@ -46,7 +55,11 @@ public class EmailService {
     }
 
     // 인증번호 메일 전송
-    public int sendSignupEmail(String email) {
+    public int sendSignupEmail(String email) throws CustomException {
+        // 이메일 중복 확인
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isPresent()) throw new CustomException(EXISTING_EMAIL_EXCEPTION);
+        // 이메일 발송
         MimeMessage message = createSignupMail(email);
         javaMailSender.send(message);
         subRedisService.setValue(email,String.valueOf(number));

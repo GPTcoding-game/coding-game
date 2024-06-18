@@ -4,6 +4,7 @@ import com.jpms.codinggame.Oauth2.PrincipalDetails;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.exception.CustomException;
 import com.jpms.codinggame.exception.ErrorCode;
+import com.jpms.codinggame.exception.ValidationErrorCode;
 import com.jpms.codinggame.exception.ValidationException;
 import com.jpms.codinggame.global.dto.*;
 import com.jpms.codinggame.jwt.CookieUtil;
@@ -50,39 +51,39 @@ public class UserController {
     @PostMapping("/signup")
     @Operation(summary = "계정 생성 요청" , description = "")
     public ApiResponse<ResponseDto> signUp(@RequestBody SignupRequestDto signupRequestDto) {
-        try {
+//        try {
             userService.signUp(signupRequestDto);
             return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("회원 가입 완료"));
-        }  catch (ValidationException e) {
-            List<String> errorMessages = e.getErrorCodes().stream()
-                    .map(ErrorCode::getMessage)
-                    .collect(Collectors.toList());
-            return new ApiResponse<>(HttpStatus.BAD_REQUEST, ResponseDto.getInstance("회원 가입 실패: " + String.join(", ", errorMessages)));
-        }
+//        }  catch (ValidationException e) {
+//            List<String> errorMessages = e.getErrorCodes().stream()
+//                    .map(ValidationErrorCode::getMessage)
+//                    .collect(Collectors.toList());
+//            return new ApiResponse<>(HttpStatus.BAD_REQUEST, ResponseDto.getInstance("회원 가입 실패: " + String.join(", ", errorMessages)));
+//        }
     }
 
     @PostMapping("/find-account")
     @Operation(summary = "아이디 찾기 이메일 요청")
     public ApiResponse<ResponseDto> findAccount(@RequestBody FindUserNameDto findUserNameDto){
-        try {
+//        try {
             userService.findAccountName(findUserNameDto);
             return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("아이디 찾기 이메일 발신 완료"));
-        } catch (CustomException e) {
-            return new ApiResponse<>(HttpStatus.BAD_REQUEST,
-                    ResponseDto.getInstance("등록되지 않은 이메일입니다: " + e.getMessage()));
-        }
+//        } catch (CustomException e) {
+//            return new ApiResponse<>(HttpStatus.BAD_REQUEST,
+//                    ResponseDto.getInstance("등록되지 않은 이메일입니다: " + e.getMessage()));
+//        }
     }
 
     @PostMapping("/find-password")
     @Operation(summary = "임시 비밀번호 이메일 요청")
     public ApiResponse<ResponseDto> sendTempPassword(@RequestBody FindPasswordDto findPasswordDto){
-        try {
+//        try {
             userService.findPassword(findPasswordDto);
             return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("임시 비밀번호 발신 완료"));
-        } catch (Exception e) {
-            return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR,
-                    ResponseDto.getInstance("등록되지 않은 이메일입니다: " + e.getMessage()));
-        }
+//        } catch (Exception e) {
+//            return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR,
+//                    ResponseDto.getInstance("등록되지 않은 이메일입니다: " + e.getMessage()));
+//        }
     }
 
     @PostMapping("/verify-email")
@@ -124,39 +125,61 @@ public class UserController {
     @Operation(summary = "이미 입력되어 있는 정보 요청", description = "")
     public ApiResponse<GetInfoResponseDto> getExistingInfo (HttpSession session
                                                             , HttpServletResponse response
-                                                            , HttpServletRequest request
+//                                                            , HttpServletRequest request
 //                                                            , Authentication authentication
-    ) throws Exception {
+    ) {
 //        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         String accessToken = (String) session.getAttribute("accessToken");
         long id = jwtTokenUtil.getId(accessToken);
         Optional<User> optionalUser = userRepository.findById(id);
-        if(optionalUser.isEmpty()){throw new Exception();}
+        if(optionalUser.isEmpty()){throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);}
 
         System.out.println(accessToken);
 
         // 리스폰스헤더에 억세스토큰 실어서 보내기
         response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 
-        System.out.println(accessToken);
-
         //쿠기에서 리프레쉬 토큰 추출
-        Optional<Cookie> refreshTokenCookie = CookieUtil.getCookieValue(request, "refreshToken");
+//        Optional<Cookie> refreshTokenCookie = CookieUtil.getCookieValue(request, "refreshToken");
 
 
         //세션에서 억세스 토큰 삭제
-        session.removeAttribute("accessToken");
+//        session.removeAttribute("accessToken");
 //        User user = principalDetails.getUser();
         return  new ApiResponse<>(HttpStatus.OK,userService.getCompulsoryInfo(optionalUser.get()));
     }
 
     @PutMapping("/add-info")
     @Operation(summary = "추가 정보 입력", description = "")
-    public ApiResponse<ResponseDto> addInfo(@RequestBody AddInfoDto addInfoDto, Authentication authentication) throws Exception {
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        User user = principalDetails.getUser();
+    public ApiResponse<LoginResponseDto> addInfo(@ RequestBody AddInfoDto addInfoDto,
+                                                 HttpSession session,
+                                                 HttpServletResponse response,
+                                                 HttpServletRequest request)
+    {
+        String accessToken = (String) session.getAttribute("accessToken");
+        long id = jwtTokenUtil.getId(accessToken);
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(optionalUser.isEmpty()){throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);}
+        User user = optionalUser.get();
+
         userService.addOauthUserInfo(addInfoDto, user);
-        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("유저 정보 갱신 완료"));
+
+        // 리스폰스헤더에 억세스토큰 실어서 보내기
+        response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+        //쿠기에서 리프레쉬 토큰 추출
+        Optional<Cookie> refreshTokenCookie = CookieUtil.getCookieValue(request, "refreshToken");
+
+
+        //세션에서 억세스 토큰 삭제
+        session.removeAttribute("accessToken");
+
+        // 가져온 정보로 dto 생성
+        LoginResponseDto loginResponseDto = LoginResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshTokenCookie.get().getValue())
+                .build();
+
+        return new ApiResponse<>(HttpStatus.OK, loginResponseDto);
     }
 
     @PostMapping("/logout")

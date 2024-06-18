@@ -7,6 +7,7 @@ import com.jpms.codinggame.entity.Tier;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.exception.CustomException;
 import com.jpms.codinggame.exception.ErrorCode;
+import com.jpms.codinggame.exception.ValidationErrorCode;
 import com.jpms.codinggame.exception.ValidationException;
 import com.jpms.codinggame.global.dto.*;
 import com.jpms.codinggame.jwt.CookieUtil;
@@ -47,19 +48,15 @@ public class UserService {
 
     //회원가입 로직
     public void signUp(SignupRequestDto signupRequestDto) throws ValidationException {
-        List<ErrorCode> errorCodes = new ArrayList<>();
-
-        // 이메일 중복 확인 >> 이메일 보내는걸로 옮기기
-        Optional<User> optionalUser = userRepository.findByEmail(signupRequestDto.getEmail());
-        if (optionalUser.isPresent()) errorCodes.add(ErrorCode.EXISTING_EMAIL_EXCEPTION);
+        List<ValidationErrorCode> errorCodes = new ArrayList<>();
 
         // 아이디 중복 확인
         Optional<User> optionalUser1 = userRepository.findByUserName(signupRequestDto.getUsername());
-        if (optionalUser1.isPresent()) errorCodes.add(ErrorCode.EXISTING_USERNAME_EXCEPTION);
+        if (optionalUser1.isPresent()) errorCodes.add(ValidationErrorCode.EXISTING_USERNAME_EXCEPTION);
 
         // 닉네임 중복 확인
         Optional<User> optionalUser2 = userRepository.findByNickName(signupRequestDto.getNickName());
-        if (optionalUser2.isPresent()) errorCodes.add(ErrorCode.EXISTING_NICKNAME_EXCEPTION);
+        if (optionalUser2.isPresent()) errorCodes.add(ValidationErrorCode.EXISTING_NICKNAME_EXCEPTION);
 
         // 비밀번호와 비밀번호 확인이 모두 일치하는지 >> 비밀번호
 //        if (!passwordCheck(signupRequestDto.getPassword(), signupRequestDto.getCheckPassword()))
@@ -67,7 +64,7 @@ public class UserService {
 
         // 이메일 인증 로직
         int savedAuthNum = Integer.parseInt(subRedisService.getValue(signupRequestDto.getEmail()));
-        if (signupRequestDto.getInputAuthNum() != savedAuthNum) errorCodes.add(ErrorCode.EMAIL_VERIFICATION_FAILED);
+        if (signupRequestDto.getInputAuthNum() != savedAuthNum) errorCodes.add(ValidationErrorCode.EMAIL_VERIFICATION_FAILED);
 
         // 예외가 하나라도 있으면 ValidationException 던지기
         if (!errorCodes.isEmpty()) {
@@ -91,9 +88,9 @@ public class UserService {
     public LoginResponseDto login(LoginRequestDto loginRequestDto) throws CustomException {
 
         Optional<User> optionalUser = userRepository.findByUserName(loginRequestDto.getUsername());
-        if (optionalUser.isEmpty()) throw new CustomException(USERNAME_NOT_FOUND);
+        if (optionalUser.isEmpty()) throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);
         else if (!bCryptPasswordEncoder.matches(loginRequestDto.getPassword(), optionalUser.get().getPassword()))
-            throw new CustomException(PASSWORD_INVALID);
+            throw new CustomException(ErrorCode.PASSWORD_INVALID);
 
         User user = optionalUser.get();
 
@@ -113,7 +110,7 @@ public class UserService {
     public void findAccountName(FindUserNameDto findAccountNameDto) throws CustomException{
         // 회원 존재 여부 확인
         Optional<User> optionalUser = userRepository.findByEmail(findAccountNameDto.getEmail());
-        if (optionalUser.isEmpty()) throw new CustomException(EMAIL_NOT_FOUND);
+        if (optionalUser.isEmpty()) throw new CustomException(ErrorCode.EMAIL_NOT_FOUND);
 
         // 이메일 발송
         emailService.sendFindAccountEmail(optionalUser.get().getEmail(), optionalUser.get().getUserName());
@@ -125,11 +122,11 @@ public class UserService {
     public void findPassword(FindPasswordDto findPasswordDto) throws CustomException{
         // 회원 존재 여부 확인
         Optional<User> optionalUser = userRepository.findByUserName(findPasswordDto.getUserName());
-        if (optionalUser.isEmpty()) throw new CustomException(USERNAME_NOT_FOUND);
+        if (optionalUser.isEmpty()) throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);
         User user = optionalUser.get();
 
         //이메일 일치 확인
-        if(!findPasswordDto.getEmail().matches(user.getEmail())) throw new CustomException(EMAIL_MISMATCH_EXCEPTION);
+        if(!findPasswordDto.getEmail().matches(user.getEmail())) throw new CustomException(ErrorCode.EMAIL_MISMATCH_EXCEPTION);
         String email = user.getEmail();
 
         // 임시 비밀번호 생성
@@ -243,7 +240,7 @@ public class UserService {
 
     public void addOauthUserInfo(AddInfoDto addInfoDto, User user) throws CustomException {
         Optional<User> optionalUser = userRepository.findByNickName(addInfoDto.getNickName());
-        if(optionalUser.isPresent()){throw new CustomException(EXISTING_NICKNAME_EXCEPTION);}
+        if(optionalUser.isPresent()){throw new CustomException(ErrorCode.EXISTING_NICKNAME_EXCEPTION);}
         user.addInfo(addInfoDto.getNickName(), addInfoDto.getAddress());
     };
 

@@ -32,6 +32,43 @@ public class CustomExceptionHandler {
     public ResponseEntity<ResponseDto> handleExpiredJwtException() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseDto.getInstance("토큰이 만료되었습니다. 다시 로그인해주세요."));
     }
+
+    //오늘 상의
+//    @ExceptionHandler(ValidationException.class)
+//    public ResponseEntity<ResponseDto> handleValidationException(ValidationException e) {
+//        int combinedErrorCode = e.getCombinedErrorCode();
+//        String errorMessage = e.getCombinedErrorMessage();
+//
+//        HttpStatus status;
+//        switch (combinedErrorCode) {
+//            case 1: // EXISTING_USERNAME_EXCEPTION
+//                status = HttpStatus.UNAUTHORIZED;
+//                break;
+//            case 2: // EXISTING_NICKNAME_EXCEPTION
+//                status = HttpStatus.FORBIDDEN;
+//                break;
+//            case 3: // EXISTING_USERNAME_EXCEPTION & EXISTING_NICKNAME_EXCEPTION
+//                status = HttpStatus.FORBIDDEN;
+//                break;
+//            case 4: // EMAIL_VERIFICATION_FAILED
+//                status = HttpStatus.NOT_FOUND;
+//                break;
+//            case 5: // EXISTING_USERNAME_EXCEPTION & EMAIL_VERIFICATION_FAILED
+//                status = HttpStatus.FORBIDDEN;
+//                break;
+//            case 6: // EXISTING_NICKNAME_EXCEPTION & EMAIL_VERIFICATION_FAILED
+//                status = HttpStatus.FORBIDDEN;
+//                break;
+//            case 7: // EXISTING_USERNAME_EXCEPTION & EXISTING_NICKNAME_EXCEPTION & EMAIL_VERIFICATION_FAILED
+//                status = HttpStatus.FORBIDDEN;
+//                break;
+//            default:
+//                status = HttpStatus.BAD_REQUEST;
+//                break;
+//        }
+//
+//        return new ResponseEntity<>(ResponseDto.getInstance(errorMessage), status);
+//    }
 }
 
 

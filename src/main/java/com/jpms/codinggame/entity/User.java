@@ -84,5 +84,5 @@ public class User {
         this.password = tempPassword;
     }
 
-    public void addInfo(String nickName, String address){this.nickName = nickName; this.address = address;}
+    public void addInfo(String email, String nickName, String address){this.email =email; this.nickName = nickName; this.address = address;}
 }

@@ -137,6 +137,7 @@ public class UserController {
         return  new ApiResponse<>(HttpStatus.OK,userService.getCompulsoryInfo(optionalUser.get()));
     }
 
+    //닉네임 필드가 비어있거나 중복 되었을 경우 예외처리
     @PutMapping("/add-info")
     @Operation(summary = "추가 정보 입력", description = "")
     public ApiResponse<LoginResponseDto> addInfo(@ RequestBody AddInfoDto addInfoDto,
@@ -170,6 +171,7 @@ public class UserController {
 
         return new ApiResponse<>(HttpStatus.OK, loginResponseDto);
     }
+
 
     @PostMapping("/logout")
     @Operation(summary = "로그 아웃 실행", description = "")

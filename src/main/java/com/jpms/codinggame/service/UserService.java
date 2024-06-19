@@ -56,11 +56,12 @@ public class UserService {
         Optional<User> optionalUser2 = userRepository.findByNickName(signupRequestDto.getNickName());
         if (optionalUser2.isPresent()) errorCodes.add(ValidationErrorCode.EXISTING_NICKNAME_EXCEPTION);
 
-        // 비밀번호와 비밀번호 확인이 모두 일치하는지 >> 비밀번호
+        // 비밀번호와 비밀번호 확인이 모두 일치하는지 >> 비밀번호 >> 프론트에서 하는걸로 합의
 //        if (!passwordCheck(signupRequestDto.getPassword(), signupRequestDto.getCheckPassword()))
 //            errorCodes.add(ErrorCode.PASSWORD_CHECK_FAILED);
 
         // 이메일 인증 로직
+        // 이메일이 없거나 redis에 없는 경우도 상정해야함
         int savedAuthNum = Integer.parseInt(subRedisService.getValue(signupRequestDto.getEmail()));
         if (signupRequestDto.getInputAuthNum() != savedAuthNum) errorCodes.add(ValidationErrorCode.EMAIL_VERIFICATION_FAILED);
 
@@ -239,7 +240,10 @@ public class UserService {
     public void addOauthUserInfo(AddInfoDto addInfoDto, User user) throws CustomException {
         Optional<User> optionalUser = userRepository.findByNickName(addInfoDto.getNickName());
         if(optionalUser.isPresent()){throw new CustomException(ErrorCode.EXISTING_NICKNAME_EXCEPTION);}
-        user.addInfo(addInfoDto.getNickName(), addInfoDto.getAddress());
+        if (addInfoDto.getNickName().isEmpty() || addInfoDto.getNickName() == null){
+            throw new CustomException(ErrorCode.EMPTY_NICKNAME_EXCEPTION);
+        }
+        user.addInfo(addInfoDto.getEmail(),addInfoDto.getNickName(), addInfoDto.getAddress());
     };
 
     public GetInfoResponseDto getCompulsoryInfo(User user){

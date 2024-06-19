@@ -1,6 +1,7 @@
 package com.jpms.codinggame.service;
 
 import com.jpms.codinggame.Oauth2.PrincipalDetails;
+import com.jpms.codinggame.dto.DeleteUserDto;
 import com.jpms.codinggame.dto.MainInfoResDto;
 import com.jpms.codinggame.entity.Role;
 import com.jpms.codinggame.entity.Tier;
@@ -18,7 +19,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,8 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static com.jpms.codinggame.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -266,6 +264,19 @@ public class UserService {
         // 리프레시 토큰 쿠키 삭제
         cookieUtil.deleteCookie(request, response, "refreshToken");
     }
+    public void deleteUser(Authentication authentication){
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        Long userId = principalDetails.getUser().getId();
+        userRepository.deleteById(userId);
+    }
+
+    public void deleteUserWithSwagger(DeleteUserDto deleteUserDto){
+        Optional<User> optionalUser = userRepository.findByEmail(deleteUserDto.getEmail());
+        User user = optionalUser.get();
+        userRepository.deleteById(user.getId());
+    }
+
+
 
 
 }

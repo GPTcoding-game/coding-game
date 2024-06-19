@@ -35,41 +35,41 @@ public class CustomExceptionHandler {
     }
 
     //오늘 상의
-//    @ExceptionHandler(ValidationException.class)
-//    public ResponseEntity<ResponseDto> handleValidationException(ValidationException e) {
-//        int combinedErrorCode = e.getCombinedErrorCode();
-//        String errorMessage = e.getCombinedErrorMessage();
-//
-//        HttpStatus status;
-//        switch (combinedErrorCode) {
-//            case 1: // EXISTING_USERNAME_EXCEPTION
-//                status = HttpStatus.UNAUTHORIZED;
-//                break;
-//            case 2: // EXISTING_NICKNAME_EXCEPTION
-//                status = HttpStatus.FORBIDDEN;
-//                break;
-//            case 3: // EXISTING_USERNAME_EXCEPTION & EXISTING_NICKNAME_EXCEPTION
-//                status = HttpStatus.FORBIDDEN;
-//                break;
-//            case 4: // EMAIL_VERIFICATION_FAILED
-//                status = HttpStatus.NOT_FOUND;
-//                break;
-//            case 5: // EXISTING_USERNAME_EXCEPTION & EMAIL_VERIFICATION_FAILED
-//                status = HttpStatus.FORBIDDEN;
-//                break;
-//            case 6: // EXISTING_NICKNAME_EXCEPTION & EMAIL_VERIFICATION_FAILED
-//                status = HttpStatus.FORBIDDEN;
-//                break;
-//            case 7: // EXISTING_USERNAME_EXCEPTION & EXISTING_NICKNAME_EXCEPTION & EMAIL_VERIFICATION_FAILED
-//                status = HttpStatus.FORBIDDEN;
-//                break;
-//            default:
-//                status = HttpStatus.BAD_REQUEST;
-//                break;
-//        }
-//
-//        return new ResponseEntity<>(ResponseDto.getInstance(errorMessage), status);
-//    }
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ResponseDto> handleValidationException(ValidationException e) {
+        int combinedErrorCode = e.getCombinedErrorCode();
+        String errorMessage = e.getCombinedErrorMessage();
+
+        HttpStatus status;
+        switch (combinedErrorCode) {
+            case 1: // EXISTING_USERNAME_EXCEPTION
+                status = HttpStatus.UNAUTHORIZED;
+                break;
+            case 2: // EXISTING_NICKNAME_EXCEPTION
+                status = HttpStatus.PAYMENT_REQUIRED;
+                break;
+            case 3: // EXISTING_USERNAME_EXCEPTION & EXISTING_NICKNAME_EXCEPTION
+                status = HttpStatus.FORBIDDEN;
+                break;
+            case 4: // EMAIL_VERIFICATION_FAILED
+                status = HttpStatus.NOT_FOUND;
+                break;
+            case 5: // EXISTING_USERNAME_EXCEPTION & EMAIL_VERIFICATION_FAILED
+                status = HttpStatus.METHOD_NOT_ALLOWED;
+                break;
+            case 6: // EXISTING_NICKNAME_EXCEPTION & EMAIL_VERIFICATION_FAILED
+                status = HttpStatus.NOT_ACCEPTABLE;
+                break;
+            case 7: // EXISTING_USERNAME_EXCEPTION & EXISTING_NICKNAME_EXCEPTION & EMAIL_VERIFICATION_FAILED
+                status = HttpStatus.PROXY_AUTHENTICATION_REQUIRED;
+                break;
+            default:
+                status = HttpStatus.BAD_REQUEST;
+                break;
+        }
+
+        return new ResponseEntity<>(ResponseDto.getInstance(errorMessage), status);
+    }
 }
 
 

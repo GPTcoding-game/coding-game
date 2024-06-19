@@ -41,29 +41,28 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         User user = principalDetails.getUser();
         System.out.println("인증 성공");
 
-        String accessToken;
-        String refreshToken;
-        try {
-            accessToken = jwtTokenUtil.createToken(user.getId(), "access");
-            System.out.println("억세스 토큰 생성 완료 :" + accessToken);
-            refreshToken = jwtTokenUtil.createToken(user.getId(), "refresh");
-            System.out.println("리프레쉬 토큰 생성 완료 :" + refreshToken);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        String accessToken = jwtTokenUtil.createToken(user.getId(), "access");
+//            System.out.println("억세스 토큰 생성 완료 :" + accessToken);
+        String refreshToken = jwtTokenUtil.createToken(user.getId(), "refresh");
+//            System.out.println("리프레쉬 토큰 생성 완료 :" + refreshToken);
+
 
         // 유저의 nickname과 address 확인
         String nickname = user.getNickName();
         String address = user.getAddress();
+        String email = user.getEmail();
 
         HttpSession session = request.getSession();
+        session.setAttribute("userId", String.valueOf(user.getId()));
         session.setAttribute("accessToken", accessToken);
+
         CookieUtil.createCookie(response, "refreshToken", refreshToken, (int) (JwtTokenUtil.refreshTokenDuration / 1000));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
         // 처음 가입이면 추가 정보 기입 페이지로 리다이렉트
-        if (nickname == null || nickname.isEmpty() || address == null || address.isEmpty()) {
+        if (nickname == null || nickname.isEmpty()
+                || address == null || address.isEmpty()
+                || email == null || email.isEmpty())
+        {
             response.sendRedirect("/users/add-info");
             return;
         }

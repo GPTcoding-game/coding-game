@@ -58,7 +58,7 @@ public class EmailService {
     public int sendSignupEmail(String email) throws CustomException {
         // 이메일 중복 확인
         Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isPresent()) throw new CustomException(EXISTING_EMAIL_EXCEPTION);
+        if (optionalUser.isPresent()) throw new CustomException(ErrorCode.EXISTING_EMAIL_EXCEPTION);
         // 이메일 발송
         MimeMessage message = createSignupMail(email);
         javaMailSender.send(message);

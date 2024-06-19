@@ -20,9 +20,8 @@ public enum ErrorCode {
     EMAIL_MISMATCH_EXCEPTION(HttpStatus.NOT_FOUND,"이메일이 일치하지 않습니다."),
     EXISTING_NICKNAME_EXCEPTION(HttpStatus.BAD_REQUEST,"이미 사용중인 닉네임입니다"),
     ENCRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,"암호화에 실패하였습니다."),
-    DECRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,"복호화에 실패하였습니다.");
+    DECRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,"복호화에 실패하였습니다."),
 
-    POSSIBLE_COUNT_EXCEPTION(HttpStatus.BAD_REQUEST,"게임 참여횟수가 초과되었습니다"),
     OUT_OF_QUESTION_INDEX(HttpStatus.BAD_REQUEST,"더 이상 불러올 문제가 없습니다."),
     INCORRECT_QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND,"틀린 문제가 없습니다."),
     INVALID_QUESTION_ID(HttpStatus.BAD_REQUEST,"잘못 된 접근입니다. (question ID is invalid)"),

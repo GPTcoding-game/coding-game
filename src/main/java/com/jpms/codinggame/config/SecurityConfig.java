@@ -82,7 +82,6 @@ public class SecurityConfig {
 //                                .permitAll()
 //                )
                 .oauth2Login(oauth2Login -> oauth2Login
-//                        .loginPage("/login")
                         .userInfoEndpoint(userInfoEndpoint ->
                                 userInfoEndpoint.userService(customOAuth2UserService)
                         )

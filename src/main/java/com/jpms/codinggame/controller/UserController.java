@@ -1,6 +1,7 @@
 package com.jpms.codinggame.controller;
 
 import com.jpms.codinggame.Oauth2.PrincipalDetails;
+import com.jpms.codinggame.dto.DeleteUserDto;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.exception.CustomException;
 import com.jpms.codinggame.exception.ErrorCode;
@@ -25,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -124,28 +126,14 @@ public class UserController {
     @GetMapping("/add-info")
     @Operation(summary = "이미 입력되어 있는 정보 요청", description = "")
     public ApiResponse<GetInfoResponseDto> getExistingInfo (HttpSession session
-                                                            , HttpServletResponse response
+//                                                            , HttpServletResponse response
 //                                                            , HttpServletRequest request
-//                                                            , Authentication authentication
+
     ) {
-//        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        String accessToken = (String) session.getAttribute("accessToken");
-        long id = jwtTokenUtil.getId(accessToken);
-        Optional<User> optionalUser = userRepository.findById(id);
+        Long userId = Long.valueOf((String) session.getAttribute("userId"));
+        Optional<User> optionalUser = userRepository.findById(userId);
         if(optionalUser.isEmpty()){throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);}
 
-        System.out.println(accessToken);
-
-        // 리스폰스헤더에 억세스토큰 실어서 보내기
-        response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-
-        //쿠기에서 리프레쉬 토큰 추출
-//        Optional<Cookie> refreshTokenCookie = CookieUtil.getCookieValue(request, "refreshToken");
-
-
-        //세션에서 억세스 토큰 삭제
-//        session.removeAttribute("accessToken");
-//        User user = principalDetails.getUser();
         return  new ApiResponse<>(HttpStatus.OK,userService.getCompulsoryInfo(optionalUser.get()));
     }
 
@@ -157,8 +145,8 @@ public class UserController {
                                                  HttpServletRequest request)
     {
         String accessToken = (String) session.getAttribute("accessToken");
-        long id = jwtTokenUtil.getId(accessToken);
-        Optional<User> optionalUser = userRepository.findById(id);
+        Long userId = Long.valueOf((String) session.getAttribute("userId"));
+        Optional<User> optionalUser = userRepository.findById(userId);
         if(optionalUser.isEmpty()){throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);}
         User user = optionalUser.get();
 
@@ -170,8 +158,9 @@ public class UserController {
         Optional<Cookie> refreshTokenCookie = CookieUtil.getCookieValue(request, "refreshToken");
 
 
-        //세션에서 억세스 토큰 삭제
+        //세션에서 억세스 토큰과 유저정보 삭제
         session.removeAttribute("accessToken");
+        session.removeAttribute("userId");
 
         // 가져온 정보로 dto 생성
         LoginResponseDto loginResponseDto = LoginResponseDto.builder()
@@ -203,6 +192,18 @@ public class UserController {
     public String testRedis(@RequestBody EmailVerificationRequestDto dto) {
         if(subRedisService.getValue(dto.getEmail())== null) return "null값임";
         return subRedisService.getValue(dto.getEmail());}
+
+    @DeleteMapping("/delete")
+    public ApiResponse<ResponseDto> deleteUser(Authentication authentication){
+        userService.deleteUser(authentication);
+        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("유저삭제 완료."));
+    }
+
+    @DeleteMapping("/swagger-delete")
+    public ApiResponse<ResponseDto> deleteUser(DeleteUserDto deleteUserDto){
+        userService.deleteUserWithSwagger(deleteUserDto);
+        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("유저삭제 완료."));
+    }
 
 
 }

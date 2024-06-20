@@ -59,6 +59,10 @@ public class GameService {
     public void deductPossibleCount(Authentication authentication){
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         User user = principalDetails.getUser();
+
+        if((int)redisHashService.get(String.valueOf(user.getId()),"possibleCount") == 0){
+            return;
+        }
         //참여횟수 카운트 -1
         redisHashService.put(String.valueOf(user.getId()),"possibleCount",(int)redisHashService.getPossibleCount(user) - 1);
         //로그

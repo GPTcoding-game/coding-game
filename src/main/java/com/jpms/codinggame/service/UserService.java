@@ -164,6 +164,9 @@ public class UserService {
 
         user.updateInfo(dto.getPassword(), dto.getNickName(), dto.getAddress());
 
+        //객체 필드값에 넣고 save 해줘야 저장됨
+        userRepository.save(user);
+
     }
 
     public boolean passwordCheck(String password, String checkPassword) {
@@ -275,6 +278,7 @@ public class UserService {
     }
 
     public void deleteUserWithSwagger(DeleteUserDto deleteUserDto){
+        log.info(deleteUserDto.getEmail());
         Optional<User> optionalUser = userRepository.findByEmail(deleteUserDto.getEmail());
         User user = optionalUser.get();
         userRepository.deleteById(user.getId());

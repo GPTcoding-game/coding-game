@@ -27,7 +27,8 @@ public enum ErrorCode {
     INCORRECT_QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND,"틀린 문제가 없습니다."),
     INVALID_QUESTION_ID(HttpStatus.BAD_REQUEST,"잘못 된 접근입니다. (question ID is invalid)"),
     INVALID_QNA_ID(HttpStatus.BAD_REQUEST,"잘못 된 접근입니다. (QnA ID is invalid"),
-    DELETE_GRANT_EXCEPTION(HttpStatus.BAD_REQUEST,"삭제할 권한이 없습니다.");
+    DELETE_GRANT_EXCEPTION(HttpStatus.BAD_REQUEST,"삭제할 권한이 없습니다."),
+    TODAY_QUESTION_ALL_SOLVED(HttpStatus.BAD_REQUEST,"오늘 풀 문제를 모두 해결하셨습니다.");
 
 
     private HttpStatus httpStatus;

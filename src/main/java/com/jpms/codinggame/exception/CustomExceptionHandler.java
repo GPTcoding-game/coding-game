@@ -16,7 +16,7 @@ import java.security.SignatureException;
 public class CustomExceptionHandler {
     @ExceptionHandler(CustomException.class)
     public ApiResponse<ErrorResponseDto> customExceptionHandler(CustomException e) {
-        return new ApiResponse<>(HttpStatus.BAD_REQUEST,ErrorResponseDto.getInstance(e.getMessage()));
+        return new ApiResponse<>(e.getErrorCode().getHttpStatus(),ErrorResponseDto.getInstance(e.getMessage()));
     }
 
     @ExceptionHandler(SignatureException.class)

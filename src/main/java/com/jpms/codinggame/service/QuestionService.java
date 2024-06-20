@@ -30,8 +30,18 @@ public class QuestionService {
     /*
     * 당일 생성 된 문제 가져오기
     * */
-    public List<QuestionResDto> getQuestionList(){
+    public List<QuestionResDto> getQuestionList(Authentication authentication){
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+
+        int todayScore = (int) redisService.getTodayScore(user);
         List<Question> questionList = questionRepository.findAllByDate(LocalDate.now());
+
+        //만약 모든 문제를 맞혔다면 exception
+        if(todayScore == questionList.size()){
+            throw new CustomException(ErrorCode.TODAY_QUESTION_ALL_SOLVED);
+        }
+
         return questionList
                 .stream()
                 .map(question -> QuestionResDto
@@ -42,7 +52,8 @@ public class QuestionService {
                         .choice(question.getChoice())
                         .answer(question.getAnswer())
                         .build())
-                .toList();
+                .toList()
+                .subList(todayScore,questionList.size()-1); //맞은 문제 빼고 다음문제부터 준다.
     }
 
 //    /*

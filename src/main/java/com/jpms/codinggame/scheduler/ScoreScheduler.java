@@ -57,8 +57,16 @@ public class ScoreScheduler {
         for (String key : userIdSet) {
 
             //isDone = true 로 설정
-            userRepository.updateState(Long.parseLong(key));
+            Optional<User> optionalUser = userRepository.findById(Long.parseLong(key));
 
+            if(optionalUser.isEmpty()) {
+                log.info("empty");
+                continue;
+            }
+
+            User user = optionalUser.get();
+            user.updateIsDone(true);
+            userRepository.save(user);
             //참여횟수 3으로 설정
 
 

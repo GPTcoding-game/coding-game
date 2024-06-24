@@ -1,15 +1,14 @@
 package com.jpms.codinggame.Oauth2;
 
 import com.jpms.codinggame.entity.User;
-import com.jpms.codinggame.jwt.CookieUtil;
 import com.jpms.codinggame.jwt.JwtTokenUtil;
 import com.jpms.codinggame.repository.UserRepository;
+import com.jpms.codinggame.service.RedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -22,14 +21,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final JwtTokenUtil jwtTokenUtil;
 
-    private final UserRepository userRepository;
+    private final RedisService redisService;
 
     public OAuth2LoginSuccessHandler(
             JwtTokenUtil jwtTokenUtil
-            , UserRepository userRepository
-    ) {
+            , UserRepository userRepository,
+            RedisService redisService) {
         this.jwtTokenUtil = jwtTokenUtil;
-        this.userRepository = userRepository;
+        this.redisService = redisService;
     }
 
     @Override
@@ -56,19 +55,28 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         session.setAttribute("userId", String.valueOf(user.getId()));
         session.setAttribute("accessToken", accessToken);
 
-        CookieUtil.createCookie(response, "refreshToken", refreshToken, (int) (JwtTokenUtil.refreshTokenDuration / 1000));
+        // refreshToken을 레디스에 저장
+        redisService.put(String.valueOf(user.getId()), "refreshToken", refreshToken);
+
+//        CookieUtil.createCookie(response, "refreshToken", refreshToken, (int) (JwtTokenUtil.refreshTokenDuration / 1000));
 
         // 처음 가입이면 추가 정보 기입 페이지로 리다이렉트
         if (nickname == null || nickname.isEmpty()
                 || address == null || address.isEmpty()
-                || email == null || email.isEmpty())
+                || email == "" || email.isEmpty())
         {
+//            response.sendRedirect("ioscodinggame://auth?code=needinfo");
+            System.out.println("소셜 로그인 완료: 추가 정보 기입 필요");
             response.sendRedirect("/users/add-info");
-            return;
+        }
+        else{
+            //response.sendRedirect("ioscodinggame://auth?code=complete");
+            response.sendRedirect("/auth/loginSuccess");
         }
 
 
-        response.sendRedirect("/auth/loginSuccess");
+
+
 
 
 

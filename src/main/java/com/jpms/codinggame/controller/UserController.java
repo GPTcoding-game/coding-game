@@ -12,6 +12,7 @@ import com.jpms.codinggame.jwt.CookieUtil;
 import com.jpms.codinggame.jwt.JwtTokenUtil;
 import com.jpms.codinggame.repository.UserRepository;
 import com.jpms.codinggame.service.EmailService;
+import com.jpms.codinggame.service.RedisService;
 import com.jpms.codinggame.service.SubRedisService;
 
 import com.jpms.codinggame.service.UserService;
@@ -44,6 +45,8 @@ public class UserController {
     private final EmailService emailService;
     private final UserRepository userRepository;
     private final SubRedisService subRedisService;
+
+    private final RedisService redisService;
 
     private final JwtTokenUtil jwtTokenUtil;
 
@@ -99,7 +102,7 @@ public class UserController {
 
     @PostMapping("/signin")
     @Operation(summary = "로그인 요청" , description = "")
-    public ApiResponse<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) throws Exception {
+    public ApiResponse<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
         LoginResponseDto loginResponseDto = userService.login(loginRequestDto);
 
         //access Token
@@ -155,8 +158,15 @@ public class UserController {
 
         // 리스폰스헤더에 억세스토큰 실어서 보내기
         response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-        //쿠기에서 리프레쉬 토큰 추출
-        Optional<Cookie> refreshTokenCookie = CookieUtil.getCookieValue(request, "refreshToken");
+        //레디스에서 리프레쉬 토큰 추출
+        String refreshToken = (String) redisService.get(String.valueOf(userId), "refreshToken");
+
+        // 쿠키 생성
+        CookieUtil.createCookie(
+                response,
+                "refreshToken",
+                refreshToken,
+                (int) ((JwtTokenUtil.refreshTokenDuration/1000)));
 
 
         //세션에서 억세스 토큰과 유저정보 삭제
@@ -166,7 +176,7 @@ public class UserController {
         // 가져온 정보로 dto 생성
         LoginResponseDto loginResponseDto = LoginResponseDto.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshTokenCookie.get().getValue())
+                .refreshToken(refreshToken)
                 .build();
 
         return new ApiResponse<>(HttpStatus.OK, loginResponseDto);

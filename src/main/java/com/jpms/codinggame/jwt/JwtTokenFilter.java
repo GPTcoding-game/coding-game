@@ -1,6 +1,8 @@
 package com.jpms.codinggame.jwt;
 
 import com.jpms.codinggame.config.PermitAllEndpoint;
+import com.jpms.codinggame.exception.CustomException;
+import com.jpms.codinggame.exception.ErrorCode;
 import com.jpms.codinggame.service.RedisService;
 import jakarta.mail.Address;
 import jakarta.servlet.FilterChain;
@@ -79,7 +81,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             String redisRefreshToken = (String) redisService.get(String.valueOf(userId), "refreshToken");
 
             // redis의 토큰과 대조
-            if(!refreshToken.equals(redisRefreshToken)) throw new RuntimeException();
+            if(!refreshToken.equals(redisRefreshToken)) throw new CustomException(ErrorCode.REFRESH_TOKEN_MISMATCH);
 
             // refresh 토큰 유효성 검사
             if (jwtTokenUtil.validateToken(refreshToken)) {

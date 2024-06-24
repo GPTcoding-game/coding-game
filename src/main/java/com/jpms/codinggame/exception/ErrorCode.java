@@ -28,7 +28,8 @@ public enum ErrorCode {
     INVALID_QUESTION_ID(HttpStatus.BAD_REQUEST,"잘못 된 접근입니다. (question ID is invalid)"),
     INVALID_QNA_ID(HttpStatus.BAD_REQUEST,"잘못 된 접근입니다. (QnA ID is invalid"),
     DELETE_GRANT_EXCEPTION(HttpStatus.BAD_REQUEST,"삭제할 권한이 없습니다."),
-    REFRESH_TOKEN_MISMATCH(HttpStatus.BAD_REQUEST,"토큰에 이상이 있습니다 다시 로그인 해주세요.");
+    REFRESH_TOKEN_MISMATCH(HttpStatus.BAD_REQUEST,"토큰에 이상이 있습니다 다시 로그인 해주세요."),
+    TODAY_QUESTION_ALL_SOLVED(HttpStatus.BAD_REQUEST,"오늘 풀 문제를 모두 해결하셨습니다.");
 
 
     private HttpStatus httpStatus;

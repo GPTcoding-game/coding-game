@@ -50,15 +50,15 @@ public class GameController {
 //            gameService.setRedisData(authentication);
 //        }
 
-        //참여횟수 1회 차감
-        gameService.deductPossibleCount(authentication);
 
 
         //게임 참여 가능 여부 파악
         if(!gameService.isDone(authentication)) throw new CustomException(ErrorCode.POSSIBLE_COUNT_EXCEPTION);
 
+        //참여횟수 1회 차감
+        gameService.deductPossibleCount(authentication);
 
-        return new ApiResponse<>(HttpStatus.OK,questionService.getQuestionList());
+        return new ApiResponse<>(HttpStatus.OK,questionService.getQuestionList(authentication));
     }
 
     /*

@@ -124,18 +124,16 @@ public class GPTService {
 
         // 답변 길이가 50자를 넘는 경우
         if (answer != null && answer.length() > 1) {
-            modifiedPrompt.append("\n\n단일 숫자로 답을 표시 해주세요.");
+            modifiedPrompt.append("\n\n주의: 단일 숫자로 답을 표시 해주세요.");
         }
 
         // 답변에 코드 블럭이 포함된 경우
         if (answer != null && answer.contains("```")) {
-            modifiedPrompt.append("\n\n답변에 코드 블럭(```)을 포함하지 말아 주세요.");
+            modifiedPrompt.append("\n\n주의: 답변에 코드 블럭(```)을 포함하지 말아 주세요.");
         }
 
         return modifiedPrompt.toString();
     }
-
-    // choice 안되는 부분이 있어
 
 
 

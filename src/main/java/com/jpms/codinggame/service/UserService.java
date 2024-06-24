@@ -62,8 +62,15 @@ public class UserService {
 
         // 이메일 인증 로직
         // 이메일이 없거나 redis에 없는 경우도 상정해야함
-        int savedAuthNum = Integer.parseInt(subRedisService.getValue(signupRequestDto.getEmail()));
-        if (signupRequestDto.getInputAuthNum() != savedAuthNum) errorCodes.add(ValidationErrorCode.EMAIL_VERIFICATION_FAILED);
+        if(subRedisService.getValue(signupRequestDto.getEmail()) == null){
+            errorCodes.add(ValidationErrorCode.EMAIL_VERIFICATION_FAILED);
+        }else{
+            int savedAuthNum = Integer.parseInt(subRedisService.getValue(signupRequestDto.getEmail()));
+            if (signupRequestDto.getInputAuthNum() != savedAuthNum) {
+                errorCodes.add(ValidationErrorCode.EMAIL_VERIFICATION_FAILED);
+            }
+        }
+
 
         // 예외가 하나라도 있으면 ValidationException 던지기
         if (!errorCodes.isEmpty()) {
@@ -163,6 +170,7 @@ public class UserService {
         User user = principalDetails.getUser();
 
         user.updateInfo(dto.getPassword(), dto.getNickName(), dto.getAddress());
+        userRepository.save(user);
 
         //객체 필드값에 넣고 save 해줘야 저장됨
         userRepository.save(user);
@@ -247,6 +255,7 @@ public class UserService {
             throw new CustomException(ErrorCode.EMPTY_NICKNAME_EXCEPTION);
         }
         user.addInfo(addInfoDto.getEmail(),addInfoDto.getNickName(), addInfoDto.getAddress());
+        userRepository.save(user);
     };
 
     public GetInfoResponseDto getCompulsoryInfo(User user){

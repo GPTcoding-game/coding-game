@@ -212,7 +212,7 @@ public class UserController {
     }
 
     @DeleteMapping("/swagger-delete")
-    public ApiResponse<ResponseDto> deleteUser(DeleteUserDto deleteUserDto){
+    public ApiResponse<ResponseDto> deleteUser(@RequestBody DeleteUserDto deleteUserDto){
         userService.deleteUserWithSwagger(deleteUserDto);
         return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("유저삭제 완료."));
     }

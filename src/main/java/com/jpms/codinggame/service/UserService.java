@@ -290,6 +290,32 @@ public class UserService {
     }
 
 
+    public Long socialSignup(String email, String name) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if(optionalUser.isEmpty()){throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);}
+        User user;
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+        } else {
+
+            user = User.builder()
+                    .userName(name)
+                    .nickName(null)
+                    .tier(Tier.BRONZE)
+                    .password(null)
+                    .email(email)
+                    .totalScore(0)
+                    .isDone(true)
+                    .role(Role.ROLE_USER)
+                    .address(null)
+                    .build();
+            userRepository.save(user);
+        }
+        return user.getId();
+    }
+
+
+
 
 
 }

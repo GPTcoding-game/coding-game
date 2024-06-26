@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.Optional;
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/oauth2")
 
 public class AuthController {
 

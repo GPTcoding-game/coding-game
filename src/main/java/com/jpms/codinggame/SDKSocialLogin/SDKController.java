@@ -42,6 +42,7 @@ public class SDKController {
     private final RedisService redisService;
 
     @PostMapping("/{provider}")
+    @Operation(summary = "소셜로그인 처리 컨트롤러", description = "제공자를 파악 한 후 알맞은 메소드 실행")
     public void socialLogin(
             @PathVariable("provider") String provider,
             @RequestBody SocialLoginRequestDto socialLoginRequestDto,
@@ -61,6 +62,7 @@ public class SDKController {
             case "kakao":
                 JsonNode kakaoPayload = tokenVerifier.verifyKakaoToken(socialLoginRequestDto.getToken());
                 email = kakaoPayload.get("kakao_account").get("email").asText();
+                // 지금 카카오 닉네임을 유저네임으로 받아오는데 해당필드는 유니크 필드임 카카오 닉네임 중복에 대한 처리 혹은 유저객체 필드 조건의 수정필요
                 username = kakaoPayload.get("kakao_account").get("profile").get("nickname").asText();
                 break;
 
@@ -71,7 +73,7 @@ public class SDKController {
             default:
                 throw new CustomException(ErrorCode.INVALID_PROVIDER);
         }
-
+        // 지금은 여기서 유저객체를 저장하지만, dto에 값을 넣어서 전달하고 추가정보 입력이 완료된 후 유저객체를 생성할 수 있을 것으로 보임
         Long userId = userService.socialSignup(email, username);
         session.setAttribute("userId", userId.toString());
 

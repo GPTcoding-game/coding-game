@@ -9,6 +9,7 @@ public enum PermitAllEndpoint {
     VERIFY_EMAIL("/verify-email"),
     USERS("/users/**"),
     SWAGGER("/swagger-ui/**"),
+    SOCIAL_LOGIN("/auth"),
     V3("v3/**"),
     GPT("/bot/**");
 

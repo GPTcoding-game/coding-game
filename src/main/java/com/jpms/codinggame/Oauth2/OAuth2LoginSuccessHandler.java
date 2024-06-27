@@ -70,8 +70,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             response.sendRedirect("/users/add-info");
         }
         else{
-            //response.sendRedirect("ioscodinggame://auth?code=complete");
-            response.sendRedirect("/auth/loginSuccess");
+//          response.sendRedirect("ioscodinggame://auth?code=complete");
+            response.sendRedirect("/oauth2/loginSuccess");
         }
 
 

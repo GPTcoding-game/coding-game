@@ -146,7 +146,7 @@ public class QuestionService {
                 throw new CustomException(ErrorCode.OUT_OF_QUESTION_INDEX);
             }
 
-            if(questionType == null && date != null){
+            if(only_Date(questionType,date)){
                 LocalDate targetDate = LocalDate.parse(date);
 
                 List<Question> filteredQuestionList = incorrectQuestionList
@@ -155,7 +155,7 @@ public class QuestionService {
                         .toList();
                 return getIncorrectQuestionResDtoList(cursor, filteredQuestionList);
             }
-            else if(questionType != null && date == null){
+            else if(only_QuestionType(questionType,date)){
 
                 List<Question> filteredQuestionList = incorrectQuestionList
                         .stream()
@@ -163,7 +163,7 @@ public class QuestionService {
                         .toList();
                 return getIncorrectQuestionResDtoList(cursor, filteredQuestionList);
             }
-            else if(date != null && questionType != null){
+            else if(both_QuestionType_And_Date(questionType,date)){
                 LocalDate targetDate = LocalDate.parse(date);
 
                 List<Question> filteredQuestionList = incorrectQuestionList
@@ -181,17 +181,17 @@ public class QuestionService {
         }
         //incorrect == false
         else{
-            if(questionType == null && date != null){
+            if(only_Date(questionType,date)){
                 List<Question> questionList = questionRepository
                         .findAllByDateByCursor(LocalDate.parse(date),cursor,createNextCursor(cursor));
                 return getQuestionResDtoList(cursor, questionList);
             }
-            else if(questionType != null && date == null){
+            else if(only_QuestionType(questionType,date)){
                 List<Question> questionList = questionRepository
                         .findAllByQTypeByCursor(questionType,cursor,createNextCursor(cursor));
                 return getQuestionResDtoList(cursor, questionList);
             }
-            else if(questionType != null && date != null){
+            else if(both_QuestionType_And_Date(questionType,date)){
                 List<Question> questionList = questionRepository
                         .findAllByDateAndQTypeByCursor(LocalDate.parse(date),questionType,cursor,createNextCursor(cursor));
                 return getQuestionResDtoList(cursor, questionList);
@@ -252,5 +252,18 @@ public class QuestionService {
         return cursor+5;
     }
 
+    /*
+    * refactoring : 검색 메서드 가독성 향상을 위한 분리
+    * */
+    public boolean only_QuestionType(String questionType, String date){
+        return questionType != null && date == null;
+    }
 
+    public boolean only_Date(String questionType, String date){
+        return questionType == null && date != null;
+    }
+
+    public boolean both_QuestionType_And_Date(String questionType, String date){
+        return questionType != null && date != null;
+    }
 }

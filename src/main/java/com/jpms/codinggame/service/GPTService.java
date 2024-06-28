@@ -4,16 +4,13 @@ import com.jpms.codinggame.entity.Question;
 import com.jpms.codinggame.entity.QuestionType;
 import com.jpms.codinggame.global.dto.GPTRequestDto;
 import com.jpms.codinggame.global.dto.GPTResponseDto;
-import com.jpms.codinggame.global.dto.QuestionInfoDto;
-import com.jpms.codinggame.repository.QuestionRepository;
+import com.jpms.codinggame.repository.question.QuestionRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

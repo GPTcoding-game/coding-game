@@ -7,16 +7,14 @@ import com.jpms.codinggame.entity.QuestionType;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.exception.CustomException;
 import com.jpms.codinggame.exception.ErrorCode;
-import com.jpms.codinggame.repository.QuestionRepository;
+import com.jpms.codinggame.repository.question.QuestionRepository;
 import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -190,7 +188,7 @@ public class QuestionService {
             }
             else if(questionType != null && date == null){
                 List<Question> questionList = questionRepository
-                        .findAllByQTypeByCursor(QuestionType.valueOf(questionType),cursor,createNextCursor(cursor));
+                        .findAllByQTypeByCursor(questionType,cursor,createNextCursor(cursor));
                 return getQuestionResDtoList(cursor, questionList);
             }
             else if(questionType != null && date != null){

@@ -1,22 +1,19 @@
 package com.jpms.codinggame.service;
 
 import com.jpms.codinggame.Oauth2.PrincipalDetails;
-import com.jpms.codinggame.dto.CheckAnswerReqDto;
 import com.jpms.codinggame.dto.CheckAnswerReqDto2;
 import com.jpms.codinggame.entity.Question;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.exception.CustomException;
 import com.jpms.codinggame.exception.ErrorCode;
-import com.jpms.codinggame.repository.QuestionRepository;
+import com.jpms.codinggame.repository.question.QuestionRepository;
 import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j

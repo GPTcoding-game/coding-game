@@ -74,6 +74,8 @@ public class User {
         this.totalScore = totalScore;
     }
 
+    public void updateTier(Tier tier) {this.tier = tier;}
+
     public void updateInfo(String password, String nickName, String address) {
         this.password = password;
         this.nickName = nickName;

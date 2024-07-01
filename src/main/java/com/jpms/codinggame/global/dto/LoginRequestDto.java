@@ -2,8 +2,7 @@ package com.jpms.codinggame.global.dto;
 
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginRequestDto {

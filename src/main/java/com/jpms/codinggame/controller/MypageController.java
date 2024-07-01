@@ -1,11 +1,10 @@
 package com.jpms.codinggame.controller;
 
 
+import com.jpms.codinggame.Oauth2.PrincipalDetails;
 import com.jpms.codinggame.dto.QnaResDto;
-import com.jpms.codinggame.global.dto.ApiResponse;
-import com.jpms.codinggame.global.dto.ResponseDto;
-import com.jpms.codinggame.global.dto.UpdateUserInfoDto;
-import com.jpms.codinggame.global.dto.UserInfoDto;
+import com.jpms.codinggame.entity.User;
+import com.jpms.codinggame.global.dto.*;
 import com.jpms.codinggame.service.QnaService;
 import com.jpms.codinggame.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +26,14 @@ public class MypageController {
 
     private final UserService userService;
     private final QnaService qnaService;
+
+    @GetMapping("/update")
+    @Operation(summary = "현재 유저 정보 불러오기" , description = "비밀번호는 고의적으로 리턴하지않음")
+    public ApiResponse<NicknameAddressDto> getChangeableInfo(Authentication authentication){
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        User user = principalDetails.getUser();
+        return new ApiResponse<>(HttpStatus.OK, new NicknameAddressDto(user.getNickName(), user.getAddress()));
+    }
 
     @PutMapping("/update")
     @Operation(summary = "유저 정보 수정" , description = "")

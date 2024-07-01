@@ -13,11 +13,11 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User,Long> {
 
     Optional<User> findByEmail(String email);
-
-
     Optional<User> findByUserName(String username);
-
     List<User> findTop50ByOrderByTotalScoreDesc();
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.provider = :provider")
+    long countByProvider(@Param("provider") String provider);
 
     @Modifying
     @Query("UPDATE User u SET u.isDone = true WHERE u.id = :id")

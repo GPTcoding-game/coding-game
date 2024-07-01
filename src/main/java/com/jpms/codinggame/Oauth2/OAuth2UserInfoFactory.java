@@ -8,9 +8,9 @@ public class OAuth2UserInfoFactory {
         if (registrationId.equalsIgnoreCase("google")) {
             return new GoogleOAuth2UserInfo(attributes);
         }
-        else if (registrationId.equalsIgnoreCase("kakao")) {
-            return new KakaoOAuth2UserInfo(attributes);
-        }
+//        else if (registrationId.equalsIgnoreCase("kakao")) {
+//            return new KakaoOAuth2UserInfo(attributes);
+//        }
         else {
             throw new IllegalArgumentException();
         }

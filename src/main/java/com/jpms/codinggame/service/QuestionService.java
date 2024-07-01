@@ -7,16 +7,14 @@ import com.jpms.codinggame.entity.QuestionType;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.exception.CustomException;
 import com.jpms.codinggame.exception.ErrorCode;
-import com.jpms.codinggame.repository.QuestionRepository;
+import com.jpms.codinggame.repository.question.QuestionRepository;
 import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -148,7 +146,7 @@ public class QuestionService {
                 throw new CustomException(ErrorCode.OUT_OF_QUESTION_INDEX);
             }
 
-            if(questionType == null && date != null){
+            if(only_Date(questionType,date)){
                 LocalDate targetDate = LocalDate.parse(date);
 
                 List<Question> filteredQuestionList = incorrectQuestionList
@@ -157,7 +155,7 @@ public class QuestionService {
                         .toList();
                 return getIncorrectQuestionResDtoList(cursor, filteredQuestionList);
             }
-            else if(questionType != null && date == null){
+            else if(only_QuestionType(questionType,date)){
 
                 List<Question> filteredQuestionList = incorrectQuestionList
                         .stream()
@@ -165,7 +163,7 @@ public class QuestionService {
                         .toList();
                 return getIncorrectQuestionResDtoList(cursor, filteredQuestionList);
             }
-            else if(date != null && questionType != null){
+            else if(both_QuestionType_And_Date(questionType,date)){
                 LocalDate targetDate = LocalDate.parse(date);
 
                 List<Question> filteredQuestionList = incorrectQuestionList
@@ -183,17 +181,17 @@ public class QuestionService {
         }
         //incorrect == false
         else{
-            if(questionType == null && date != null){
+            if(only_Date(questionType,date)){
                 List<Question> questionList = questionRepository
                         .findAllByDateByCursor(LocalDate.parse(date),cursor,createNextCursor(cursor));
                 return getQuestionResDtoList(cursor, questionList);
             }
-            else if(questionType != null && date == null){
+            else if(only_QuestionType(questionType,date)){
                 List<Question> questionList = questionRepository
-                        .findAllByQTypeByCursor(QuestionType.valueOf(questionType),cursor,createNextCursor(cursor));
+                        .findAllByQTypeByCursor(questionType,cursor,createNextCursor(cursor));
                 return getQuestionResDtoList(cursor, questionList);
             }
-            else if(questionType != null && date != null){
+            else if(both_QuestionType_And_Date(questionType,date)){
                 List<Question> questionList = questionRepository
                         .findAllByDateAndQTypeByCursor(LocalDate.parse(date),questionType,cursor,createNextCursor(cursor));
                 return getQuestionResDtoList(cursor, questionList);
@@ -254,5 +252,18 @@ public class QuestionService {
         return cursor+5;
     }
 
+    /*
+    * refactoring : 검색 메서드 가독성 향상을 위한 분리
+    * */
+    public boolean only_QuestionType(String questionType, String date){
+        return questionType != null && date == null;
+    }
 
+    public boolean only_Date(String questionType, String date){
+        return questionType == null && date != null;
+    }
+
+    public boolean both_QuestionType_And_Date(String questionType, String date){
+        return questionType != null && date != null;
+    }
 }

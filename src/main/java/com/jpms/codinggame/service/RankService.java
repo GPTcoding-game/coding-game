@@ -1,6 +1,7 @@
 package com.jpms.codinggame.service;
 
 import com.jpms.codinggame.dto.RankResDto;
+import com.jpms.codinggame.entity.Tier;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -91,5 +92,42 @@ public class RankService {
     * */
     public int getMyAllDayRank(User user){
         return userRepository.findRankByTotalScore(user.getTotalScore());
+    }
+
+    /*
+    * 티어 변경 메서드
+    * */
+    public Tier getUserTier(User user){
+        if(bronze_range(user.getTotalScore())){
+            return Tier.BRONZE;
+        }
+        else if(silver_range(user.getTotalScore())){
+            return Tier.SILVER;
+        }
+        else if(gold_range(user.getTotalScore())){
+            return Tier.GOLD;
+        }
+        else if(platinum_range(user.getTotalScore())){
+            return Tier.PLATINUM;
+        }
+        else{
+            return Tier.DIAMOND;
+        }
+    }
+
+    public boolean bronze_range(int totalScore){
+        return totalScore <= 100 && totalScore >= 0;
+    }
+    public boolean silver_range(int totalScore){
+        return totalScore <= 200 && totalScore > 100;
+    }
+    public boolean gold_range(int totalScore){
+        return totalScore <= 300 && totalScore > 200;
+    }
+    public boolean platinum_range(int totalScore){
+        return totalScore <= 400 && totalScore > 300;
+    }
+    public boolean diamond_range(int totalScore){
+        return totalScore > 400;
     }
 }

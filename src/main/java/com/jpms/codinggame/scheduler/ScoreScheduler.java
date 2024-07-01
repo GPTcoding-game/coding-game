@@ -2,6 +2,7 @@ package com.jpms.codinggame.scheduler;
 
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.repository.UserRepository;
+import com.jpms.codinggame.service.RankService;
 import com.jpms.codinggame.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ScoreScheduler {
     private final RedisService redisService;
+    private final RankService rankService;
     private final UserRepository userRepository;
 
 
@@ -35,6 +37,7 @@ public class ScoreScheduler {
 
             //DB 에 당일 점수 update
             User user = optionalUser.get();
+            user.updateTier(rankService.getUserTier(user));
             user.updateTotalScore(user.getTotalScore() + todayScore);
             userRepository.save(user);
 
@@ -60,7 +63,6 @@ public class ScoreScheduler {
             Optional<User> optionalUser = userRepository.findById(Long.parseLong(key));
 
             if(optionalUser.isEmpty()) {
-                log.info("empty");
                 continue;
             }
 

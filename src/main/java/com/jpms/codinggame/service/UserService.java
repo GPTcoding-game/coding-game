@@ -88,6 +88,7 @@ public class UserService {
                 .isDone(true)
                 .role(Role.ROLE_USER)
                 .address(signupRequestDto.getAddress())
+                .provider("CodingGame")
                 .build());
     }
 
@@ -168,8 +169,11 @@ public class UserService {
     ){
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         User user = principalDetails.getUser();
+        Optional<User> optionalUser = userRepository.findByNickName(dto.getNickName());
+        if(optionalUser.isPresent()){throw new CustomException(ErrorCode.EXISTING_NICKNAME_EXCEPTION);}
 
-        user.updateInfo(dto.getPassword(), dto.getNickName(), dto.getAddress());
+
+        user.updateInfo(bCryptPasswordEncoder.encode(dto.getPassword()), dto.getNickName(), dto.getAddress());
         userRepository.save(user);
 
         //객체 필드값에 넣고 save 해줘야 저장됨
@@ -188,9 +192,14 @@ public class UserService {
     public UserInfoDto getUserInfo(Authentication authentication){
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         User user = principalDetails.getUser();
+        // 소셜로그인 사용자의 경우 계정이름이 아닌 제공자+"계정 사용자"의 형식으로 반환\
+        String username = user.getUserName();
+        if(!user.getProvider().equals("CodingGame")){
+            username = user.getProvider()+"계정 사용자";
+        }
 
         return UserInfoDto.builder()
-                .userName(user.getUserName())
+                .userName(username)
                 .nickName(user.getNickName())
                 .totalScore(user.getTotalScore())
                 .tier(user.getTier())
@@ -248,13 +257,13 @@ public class UserService {
         redisService.put(String.valueOf(user.getId()),"possibleCount",3);
     }
 
-    public void addOauthUserInfo(AddInfoDto addInfoDto, User user) throws CustomException {
+    public void addOauthUserInfo(NicknameAddressDto addInfoDto, User user) throws CustomException {
         Optional<User> optionalUser = userRepository.findByNickName(addInfoDto.getNickName());
         if(optionalUser.isPresent()){throw new CustomException(ErrorCode.EXISTING_NICKNAME_EXCEPTION);}
         if (addInfoDto.getNickName().isEmpty() || addInfoDto.getNickName() == null){
             throw new CustomException(ErrorCode.EMPTY_NICKNAME_EXCEPTION);
         }
-        user.addInfo(addInfoDto.getEmail(),addInfoDto.getNickName(), addInfoDto.getAddress());
+        user.addInfo(addInfoDto.getNickName(), addInfoDto.getAddress());
         userRepository.save(user);
     };
 
@@ -296,7 +305,6 @@ public class UserService {
 
     public Long socialSignup(String email, String name) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
-        if(optionalUser.isEmpty()){throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);}
         User user;
         if (optionalUser.isPresent()) {
             user = optionalUser.get();

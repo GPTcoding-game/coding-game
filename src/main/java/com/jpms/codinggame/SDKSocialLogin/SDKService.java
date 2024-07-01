@@ -5,8 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.jpms.codinggame.entity.User;
+import com.jpms.codinggame.exception.CustomException;
+import com.jpms.codinggame.exception.ErrorCode;
+import com.jpms.codinggame.global.dto.SessionDataDto;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +25,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 
 @Service
-public class TokenVerifier {
+public class SDKService {
 
     @Value("${google.client.id}")
     private String googleClientId;
@@ -29,9 +35,11 @@ public class TokenVerifier {
 
     // 구글 토큰 검증
     public GoogleIdToken.Payload verifyGoogleToken(String idTokenString) throws GeneralSecurityException, IOException {
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                GsonFactory.getDefaultInstance())
+
+        HttpTransport transport = GoogleNetHttpTransport.newTrustedTransport();
+        JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
                 .setAudience(Collections.singletonList(googleClientId))
                 .build();
 
@@ -55,6 +63,32 @@ public class TokenVerifier {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readTree(response.body());
+    }
+
+
+    public boolean checkCompulsoryField(User user) {
+        return user.getNickName() != null && !user.getNickName().isEmpty() &&
+                user.getAddress() != null && !user.getAddress().isEmpty();
+    }
+
+
+    public void validateSessionData(HttpSession session) {
+        String email = (String) session.getAttribute("email");
+        String username = (String) session.getAttribute("username");
+        String provider = (String) session.getAttribute("provider");
+
+        if (email == null || username == null || provider == null) {
+            throw new CustomException(ErrorCode.INVALID_SESSION);
+        }
+    }
+
+    public SessionDataDto getSessionData(HttpSession session) {
+        validateSessionData(session); // 중복 검증을 피하기 위해 재사용
+        String email = (String) session.getAttribute("email");
+        String username = (String) session.getAttribute("username");
+        String provider = (String) session.getAttribute("provider");
+
+        return new SessionDataDto(email, username, provider);
     }
 
 

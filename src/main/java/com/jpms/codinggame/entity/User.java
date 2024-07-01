@@ -50,8 +50,8 @@ public class User {
     @Column
     private String provider;
 
-    @Column
-    private String providerId;
+//    @Column
+//    private String providerId;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Qna> qnaList;
@@ -84,5 +84,5 @@ public class User {
         this.password = tempPassword;
     }
 
-    public void addInfo(String email, String nickName, String address){this.email =email; this.nickName = nickName; this.address = address;}
+    public void addInfo(String nickName, String address){ this.nickName = nickName; this.address = address;}
 }

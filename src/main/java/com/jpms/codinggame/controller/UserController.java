@@ -1,12 +1,9 @@
 package com.jpms.codinggame.controller;
 
-import com.jpms.codinggame.Oauth2.PrincipalDetails;
 import com.jpms.codinggame.dto.DeleteUserDto;
 import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.exception.CustomException;
 import com.jpms.codinggame.exception.ErrorCode;
-import com.jpms.codinggame.exception.ValidationErrorCode;
-import com.jpms.codinggame.exception.ValidationException;
 import com.jpms.codinggame.global.dto.*;
 import com.jpms.codinggame.jwt.CookieUtil;
 import com.jpms.codinggame.jwt.JwtTokenUtil;
@@ -18,7 +15,6 @@ import com.jpms.codinggame.service.SubRedisService;
 import com.jpms.codinggame.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -27,12 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -143,7 +136,7 @@ public class UserController {
     //닉네임 필드가 비어있거나 중복 되었을 경우 예외처리
     @PutMapping("/add-info")
     @Operation(summary = "추가 정보 입력", description = "")
-    public ApiResponse<LoginResponseDto> addInfo(@ RequestBody AddInfoDto addInfoDto,
+    public ApiResponse<LoginResponseDto> addInfo(@ RequestBody NicknameAddressDto addInfoDto,
                                                  HttpSession session,
                                                  HttpServletResponse response,
                                                  HttpServletRequest request)

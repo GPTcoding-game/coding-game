@@ -6,6 +6,7 @@ import com.jpms.codinggame.global.dto.ApiResponse;
 import com.jpms.codinggame.global.dto.ResponseDto;
 import com.jpms.codinggame.service.ComplaintService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,10 @@ public class ComplaintController {
 
     @PostMapping("/qna/{qnaId}/complaint")
     @Operation(summary = "QnA 신고 요청")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "qna 신고 작성 완료"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Authentication 내 유저정보 없음")
+    })
     public ApiResponse<ResponseDto> complaintQna(
             @PathVariable(name="qnaId") Long qnaId,
             @RequestBody ComplaintReqDto dto,
@@ -36,6 +41,10 @@ public class ComplaintController {
 
     @PostMapping("/comment/{commentId}/complaint")
     @Operation(summary = "Comment 신고 요청")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "댓글 신고 작성 완료"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Authentication 내 유저정보 없음")
+    })
     public ApiResponse<ResponseDto> complaintComment(
             @PathVariable(name="commentId") Long commentId,
             @RequestBody ComplaintReqDto dto,

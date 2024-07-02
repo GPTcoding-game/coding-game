@@ -4,6 +4,7 @@ import com.jpms.codinggame.dto.RankResDto;
 import com.jpms.codinggame.global.dto.ApiResponse;
 import com.jpms.codinggame.service.RankService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,10 @@ public class RankController {
     * */
     @GetMapping("/rank/today")
     @Operation(summary = "오늘의 랭킹 불러오기(List)" , description = "내림차순으로 전체 List 뽑아옴. 일부 뽑아쓰기")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",description = "ff"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400",description = "aa")
+    })
     public ApiResponse<List<RankResDto>> getTodayRank(){
         return new ApiResponse<>(HttpStatus.OK,rankService.getTodayRankList());
     }

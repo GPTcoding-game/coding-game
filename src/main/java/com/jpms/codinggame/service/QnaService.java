@@ -6,6 +6,8 @@ import com.jpms.codinggame.dto.QnaModifyRequestDto;
 import com.jpms.codinggame.dto.QnaResDto;
 import com.jpms.codinggame.entity.Qna;
 import com.jpms.codinggame.entity.User;
+import com.jpms.codinggame.exception.CustomException;
+import com.jpms.codinggame.exception.ErrorCode;
 import com.jpms.codinggame.repository.QnaRepository;
 import com.jpms.codinggame.repository.question.QuestionRepository;
 import com.jpms.codinggame.repository.UserRepository;
@@ -51,7 +53,7 @@ public class QnaService {
             Long questionId,
             QnaModifyRequestDto dto,
             Authentication authentication){
-        Qna qna = qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new);
+        Qna qna = qnaRepository.findById(qnaId).orElseThrow(()->new CustomException(ErrorCode.INVALID_QNA_ID));
 
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         User user = principalDetails.getUser();
@@ -61,7 +63,7 @@ public class QnaService {
                 .id(qna.getId())
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .question(questionRepository.findById(questionId).orElseThrow(RuntimeException::new))
+                .question(questionRepository.findById(questionId).orElseThrow(()->new CustomException(ErrorCode.INVALID_QUESTION_ID)))
                 .user(user)
                 .time(LocalDate.now())
                 .commentList(qna.getCommentList())
@@ -74,9 +76,9 @@ public class QnaService {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         User user = principalDetails.getUser();
 
-        Qna qna = qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new);
+        Qna qna = qnaRepository.findById(qnaId).orElseThrow(()->new CustomException(ErrorCode.INVALID_QNA_ID));
 
-        if(qna.getUser() != user) throw new RuntimeException();
+        if(qna.getUser() != user) throw new CustomException(ErrorCode.GRANT_EXCEPTION);
         qnaRepository.deleteById(qnaId);
     };
 
@@ -85,7 +87,7 @@ public class QnaService {
     //page 형태로 변경하기
     public List<QnaResDto> getQnaList(Long questionId){
         //Question 존재 유무
-        questionRepository.findById(questionId).orElseThrow(RuntimeException::new);
+        questionRepository.findById(questionId).orElseThrow(()->new CustomException(ErrorCode.INVALID_QUESTION_ID));
 
         //qnaList 생성
         List<Qna> qnaList = qnaRepository.findAllByQuestionId(questionId);
@@ -125,7 +127,7 @@ public class QnaService {
 
     //특정 질문 가져오기
     public QnaResDto getQna(Long qnaId){
-        Qna qna = qnaRepository.findById(qnaId).orElseThrow(RuntimeException::new);
+        Qna qna = qnaRepository.findById(qnaId).orElseThrow(()->new CustomException(ErrorCode.INVALID_QNA_ID));
         return QnaResDto.fromEntity(qna);
     }
 

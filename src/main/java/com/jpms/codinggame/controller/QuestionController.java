@@ -5,6 +5,7 @@ import com.jpms.codinggame.dto.QuestionResDto;
 import com.jpms.codinggame.global.dto.ApiResponse;
 import com.jpms.codinggame.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,11 @@ public class QuestionController {
     @Operation(
             summary = "지난 문제 요청",
             description = "쿼리파라미터 questionType(String),date(String),incorrect(boolean, 디폴트 false) ")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "지난 문제 요청이 정상적으로 처리되었음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "문제가 전부 호출 되었거나, 가져올 문제가 없음(틀린 문제가 없음)"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "유저 정보를 찾을 수 없음")
+    })
     public ApiResponse<QuestionListResDto> getPastQuestionListByCondition(
             @RequestParam(defaultValue = "0") Long cursor,
             @RequestParam(name="questionType", required = false) String questionType,

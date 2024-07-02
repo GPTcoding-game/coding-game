@@ -10,6 +10,7 @@ import com.jpms.codinggame.global.dto.ResponseDto;
 import com.jpms.codinggame.service.GameService;
 import com.jpms.codinggame.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,22 +37,14 @@ public class GameController {
     */
     @GetMapping("/game/start")
     @Operation(summary = "게임 시작 요청" , description = "isDone 필드 false 이면 exception 날림")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "게임 정상적으로 시작, 문제 리스트 리턴"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "게임 횟수가 초과되어 요청 거부"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Authentication 내 유저정보 없음")
+    })
     public ApiResponse<List<QuestionResDto>> startGame(
             Authentication authentication
     ){
-
-//        /*
-//        * 이 부분은 main 화면에 처음 들어올때 생성하는거 어떤지
-//        * */
-//        //REDIS DATA 저장되어있는지 확인
-//        if(gameService.isFirst(authentication)){
-//            log.info("isEmpty");
-//            //SET REDIS DATA
-//            gameService.setRedisData(authentication);
-//        }
-
-
-
         //게임 참여 가능 여부 파악
         if(!gameService.isDone(authentication)) throw new CustomException(ErrorCode.POSSIBLE_COUNT_EXCEPTION);
 
@@ -66,6 +59,11 @@ public class GameController {
      * */
     @GetMapping("/game/answer")
     @Operation(summary = "오늘 문제 채점 요청" , description = "questionId(long) , isCorrect(boolean)")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "채점 요청이 정상적으로 처리되었음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "QNA ID 가 정상적이지 않음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Authentication 내 유저정보 없음")
+    })
     public ApiResponse<ResponseDto> checkAnswerToday(
             Authentication authentication,
             @RequestBody CheckAnswerReqDto2 dto
@@ -79,6 +77,11 @@ public class GameController {
      * */
     @GetMapping("/game/answer/past")
     @Operation(summary = "지난 문제 채점 요청" , description = "틀린문제 QuestionNo 를 리스트 형태로 만들어 요청해야함.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "채점 요청이 정상적으로 처리되었음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "QNA ID 가 정상적이지 않음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Authentication 내 유저정보 없음")
+    })
     public ApiResponse<ResponseDto> checkAnswerPast(
             Authentication authentication,
             @RequestBody CheckAnswerReqDto2 dto

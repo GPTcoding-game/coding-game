@@ -86,7 +86,7 @@ public class CommentService {
 
         User user1 = userRepository.findById(user.getId()).orElseThrow(()->new CustomException(ErrorCode.USERNAME_NOT_FOUND));
         User user2 = commentRepository.findById(commentId).get().getUser();
-        if(user1 != user2) throw new CustomException(ErrorCode.DELETE_GRANT_EXCEPTION);
+        if(user1 != user2) throw new CustomException(ErrorCode.GRANT_EXCEPTION);
         commentRepository.deleteById(commentId);
     }
 

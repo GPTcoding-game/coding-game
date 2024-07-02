@@ -30,7 +30,8 @@ public class QuestionController {
     @GetMapping("/question/past")
     @Operation(
             summary = "지난 문제 요청",
-            description = "쿼리파라미터 questionType(String),date(String),incorrect(boolean, 디폴트 false) ")
+            description = "쿼리파라미터 questionType(String),date(String),incorrect(boolean, 디폴트 false) " +
+                        "QuestionType : JAVA, SQL, C, PYTHON    4개의 언어")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "지난 문제 요청이 정상적으로 처리되었음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "문제가 전부 호출 되었거나, 가져올 문제가 없음(틀린 문제가 없음)"),

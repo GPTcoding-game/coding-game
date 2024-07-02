@@ -122,70 +122,70 @@ public class UserController {
         return new ApiResponse<>(HttpStatus.OK, loginResponseDto);
     }
 
-    @GetMapping("/getid")
-    @Operation(summary = "유저 id 요청" , description = "")
-    public String test(Authentication authentication){
-        Long id = (Long) authentication.getPrincipal();
-        return (String.valueOf(id));
-    }
+//    @GetMapping("/getid")
+//    @Operation(summary = "유저 id 요청" , description = "")
+//    public String test(Authentication authentication){
+//        Long id = (Long) authentication.getPrincipal();
+//        return (String.valueOf(id));
+//    }
 
 
-    // 소셜로그인 추가정보를 하고 리스폰스에 바로 토큰을 부여할것인지 아니면 그냥 넘겨버릴껀지 고민해야됨
-    @GetMapping("/add-info")
-    @Operation(summary = "이미 입력되어 있는 정보 요청", description = "")
-    public ApiResponse<GetInfoResponseDto> getExistingInfo (HttpSession session
-//                                                            , HttpServletResponse response
-//                                                            , HttpServletRequest request
-
-    ) {
-        Long userId = Long.valueOf((String) session.getAttribute("userId"));
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if(optionalUser.isEmpty()){throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);}
-
-        return  new ApiResponse<>(HttpStatus.OK,userService.getCompulsoryInfo(optionalUser.get()));
-    }
-
-    //닉네임 필드가 비어있거나 중복 되었을 경우 예외처리
-    @PutMapping("/add-info")
-    @Operation(summary = "추가 정보 입력", description = "")
-    public ApiResponse<LoginResponseDto> addInfo(@ RequestBody NicknameAddressDto addInfoDto,
-                                                 HttpSession session,
-                                                 HttpServletResponse response,
-                                                 HttpServletRequest request)
-    {
-        String accessToken = (String) session.getAttribute("accessToken");
-        Long userId = Long.valueOf((String) session.getAttribute("userId"));
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if(optionalUser.isEmpty()){throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);}
-        User user = optionalUser.get();
-
-        userService.addOauthUserInfo(addInfoDto, user);
-
-        // 리스폰스헤더에 억세스토큰 실어서 보내기
-        response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-        //레디스에서 리프레쉬 토큰 추출
-        String refreshToken = (String) redisService.get(String.valueOf(userId), "refreshToken");
-
-        // 쿠키 생성
-        CookieUtil.createCookie(
-                response,
-                "refreshToken",
-                refreshToken,
-                (int) ((JwtTokenUtil.refreshTokenDuration/1000)));
-
-
-        //세션에서 억세스 토큰과 유저정보 삭제
-        session.removeAttribute("accessToken");
-        session.removeAttribute("userId");
-
-        // 가져온 정보로 dto 생성
-        LoginResponseDto loginResponseDto = LoginResponseDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
-
-        return new ApiResponse<>(HttpStatus.OK, loginResponseDto);
-    }
+    /**서버에서 Oauth2 인증을 사용할 경우 사용되는 필수 정보 입력 컨트롤러 (최종본에는 SDK 인증방식으로 사용하여 사용하지 않음)**/
+//    @GetMapping("/add-info")
+//    @Operation(summary = "이미 입력되어 있는 정보 요청", description = "")
+//    public ApiResponse<GetInfoResponseDto> getExistingInfo (HttpSession session
+////                                                            , HttpServletResponse response
+////                                                            , HttpServletRequest request
+//
+//    ) {
+//        Long userId = Long.valueOf((String) session.getAttribute("userId"));
+//        Optional<User> optionalUser = userRepository.findById(userId);
+//        if(optionalUser.isEmpty()){throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);}
+//
+//        return  new ApiResponse<>(HttpStatus.OK,userService.getCompulsoryInfo(optionalUser.get()));
+//    }
+//
+//    //닉네임 필드가 비어있거나 중복 되었을 경우 예외처리
+//    @PutMapping("/add-info")
+//    @Operation(summary = "추가 정보 입력", description = "")
+//    public ApiResponse<LoginResponseDto> addInfo(@ RequestBody NicknameAddressDto addInfoDto,
+//                                                 HttpSession session,
+//                                                 HttpServletResponse response,
+//                                                 HttpServletRequest request)
+//    {
+//        String accessToken = (String) session.getAttribute("accessToken");
+//        Long userId = Long.valueOf((String) session.getAttribute("userId"));
+//        Optional<User> optionalUser = userRepository.findById(userId);
+//        if(optionalUser.isEmpty()){throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);}
+//        User user = optionalUser.get();
+//
+//        userService.addOauthUserInfo(addInfoDto, user);
+//
+//        // 리스폰스헤더에 억세스토큰 실어서 보내기
+//        response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+//        //레디스에서 리프레쉬 토큰 추출
+//        String refreshToken = (String) redisService.get(String.valueOf(userId), "refreshToken");
+//
+//        // 쿠키 생성
+//        CookieUtil.createCookie(
+//                response,
+//                "refreshToken",
+//                refreshToken,
+//                (int) ((JwtTokenUtil.refreshTokenDuration/1000)));
+//
+//
+//        //세션에서 억세스 토큰과 유저정보 삭제
+//        session.removeAttribute("accessToken");
+//        session.removeAttribute("userId");
+//
+//        // 가져온 정보로 dto 생성
+//        LoginResponseDto loginResponseDto = LoginResponseDto.builder()
+//                .accessToken(accessToken)
+//                .refreshToken(refreshToken)
+//                .build();
+//
+//        return new ApiResponse<>(HttpStatus.OK, loginResponseDto);
+//    }
 
 
     @PostMapping("/logout")
@@ -201,10 +201,10 @@ public class UserController {
     }
 
 
-    @PostMapping("/redis/test")
-    public String testRedis(@RequestBody EmailVerificationRequestDto dto) {
-        if(subRedisService.getValue(dto.getEmail())== null) return "null값임";
-        return subRedisService.getValue(dto.getEmail());}
+//    @PostMapping("/redis/test")
+//    public String testRedis(@RequestBody EmailVerificationRequestDto dto) {
+//        if(subRedisService.getValue(dto.getEmail())== null) return "null값임";
+//        return subRedisService.getValue(dto.getEmail());}
 
     @DeleteMapping("/delete")
     @Operation(summary = "회원탈퇴 로직", description = "정말로 탈퇴하시겠습니까? 버튼 프론트에서 생성 필요")
@@ -216,6 +216,7 @@ public class UserController {
         return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("유저삭제 완료."));
     }
 
+    // 인증 없이 스웨거로 쉽게 유저삭제 테스트를 위한 컨트롤러
     @DeleteMapping("/swagger-delete")
     public ApiResponse<ResponseDto> deleteUser(@RequestBody DeleteUserDto deleteUserDto){
         userService.deleteUserWithSwagger(deleteUserDto);

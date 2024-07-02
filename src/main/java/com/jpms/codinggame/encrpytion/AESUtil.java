@@ -16,7 +16,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
 @Component
-@AllArgsConstructor
 public class AESUtil {
 
 
@@ -25,7 +24,11 @@ public class AESUtil {
     @Value("${aes.secret}")
     private String aesKey;
 
-    private final UserService userService;
+//    private final UserService userService;
+//
+//    public AESUtil(UserService userService) {
+//        this.userService = userService;
+//    }
 
     public String encrypt(long id) throws CustomException {
         try {
@@ -64,7 +67,7 @@ public class AESUtil {
             String decryptedId = new String(decryptedBytes);
             return Long.parseLong(decryptedId);
         } catch (Exception e) {
-            userService.logOut(session, request, response);
+//            userService.logOut(session, request, response);
             throw new CustomException(ErrorCode.DECRYPTION_FAILED);
         }
     }

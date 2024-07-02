@@ -32,7 +32,8 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
-@Tag(name ="SDK 기반 소셜로그인 Controller", description = "SDK 소셜 로그인 API")
+@Tag(name ="SDK 기반 소셜로그인 Controller", description = "{provider}의 요청이 통과 되었을 시 /add-info 로 자동 리다이렉트 \n"+
+                                                "/add-info의 put/post 요청이 통과 되었을 시 /loginsuccess 로 자동 리다이렉트")
 public class SDKController {
 
     private final SDKService sdkService;
@@ -121,7 +122,7 @@ public class SDKController {
     @GetMapping("/add-info")
     @Operation(summary = "필수 정보 입력 컨트롤러", description = "신규유저와 기존유저를 구분하고 알맞은 값을 리턴")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "nickname: 사용자가 사용할 닉네임, address: 사용자가 사용할 주소, new: 신규가입 사용자 구분"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "nickname: 사용자가 사용할 닉네임, address: 사용자가 사용할 주소, new: true: 신규 사용자, false: 기존 사용자"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "세션에 등록된 id와 일치하는 유저 정보가 없음 > 다시 로그인 시도 필요")
     })
     public ApiResponse<CompulsoryFieldResponseDto> getCompulsoryInfo(HttpSession session) {
@@ -148,7 +149,7 @@ public class SDKController {
 
 
     @PostMapping("/add-info")
-    @Operation(summary = "입력받은 추가정보와 기존의 정보를 토대로 유저객체 생성", description = "")
+    @Operation(summary = "입력받은 추가정보와 기존의 정보를 토대로 유저객체 생성", description = "신규 유저")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "로그인 완료창 리다이렉션 실패")
     })
@@ -192,7 +193,7 @@ public class SDKController {
     }
 
     @PutMapping("/add-info")
-    @Operation(summary = "소실된 필수 정보 업데이트", description = "")
+    @Operation(summary = "소실된 필수 정보 업데이트", description = "기존 유저")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "로그인 완료창 리다이렉션 실패"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "세션에 등록된 id와 일치하는 유저 정보가 없음 > 다시 로그인 시도 필요")

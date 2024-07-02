@@ -14,6 +14,7 @@ import com.jpms.codinggame.service.SubRedisService;
 
 import com.jpms.codinggame.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -47,54 +48,66 @@ public class UserController {
 
 
     @PostMapping("/signup")
-    @Operation(summary = "계정 생성 요청" , description = "")
+    @Operation(summary = "계정 생성 요청" , description = "비밀번호 일치 확인 로직은 프론트에서 처리")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "회원가입 완료 > 로그인 페이지로 이동"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "원인 미상의 회원가입 오류 > 페이지 유지 혹은 다시 로그인 페이지로 이동"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "이미 존재하는 계정 > 이미 존재하는 아이디입니다 메시지 출력"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "402", description = "이미 존재하는 닉네임 > 이미 존재하는 닉네임입니다 메시지 출력"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "이미 존재하는 아이디 & 닉네임 > 아이디와 닉네임 입력란에 메시지 동시 출력"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "이메일 인증 실패 > 이메일 인증에 실패하였습니다 메시지 출력"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "405", description = "이미 존재하는 계정 + 이메일 인증 실패 > 아이디 입력란과 이메일 인증칸에 메시지 동시 출력"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "406", description = "이미 존재하는 닉네임 + 이메일 인증 실패 > 닉네임 입력란과 이메일 인증칸에 메시지 동시 출력"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "407", description = "이미 존재하는 계정 & 닉네임 + 이메일 인증 실패 > 아이디와 닉네임 입력란과 이메일 인증칸에 메시지 동시 출력")
+
+    })
     public ApiResponse<ResponseDto> signUp(@RequestBody SignupRequestDto signupRequestDto) {
-//        try {
             userService.signUp(signupRequestDto);
             return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("회원 가입 완료"));
-//        }  catch (ValidationException e) {
-//            List<String> errorMessages = e.getErrorCodes().stream()
-//                    .map(ValidationErrorCode::getMessage)
-//                    .collect(Collectors.toList());
-//            return new ApiResponse<>(HttpStatus.BAD_REQUEST, ResponseDto.getInstance("회원 가입 실패: " + String.join(", ", errorMessages)));
-//        }
     }
 
     @PostMapping("/find-account")
     @Operation(summary = "아이디 찾기 이메일 요청")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "유저 이메일로 계정이름을 발신 > 로그인 페이지로 이동"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "해당 이메일로 등록되어있는 계정이 없음 > 다른 이메일 입력 필요 메시지 출력")
+    })
     public ApiResponse<ResponseDto> findAccount(@RequestBody FindUserNameDto findUserNameDto){
-//        try {
             userService.findAccountName(findUserNameDto);
             return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("아이디 찾기 이메일 발신 완료"));
-//        } catch (CustomException e) {
-//            return new ApiResponse<>(HttpStatus.BAD_REQUEST,
-//                    ResponseDto.getInstance("등록되지 않은 이메일입니다: " + e.getMessage()));
-//        }
     }
 
     @PostMapping("/find-password")
     @Operation(summary = "임시 비밀번호 이메일 요청")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "유저 이메일로 임시 비밀번호를 발신 > 로그인 페이지로 이동"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "해당 이메일로 등록되어있는 계정이 없음 > 다른 이메일 입력 필요 메시지 출력")
+    })
     public ApiResponse<ResponseDto> sendTempPassword(@RequestBody FindPasswordDto findPasswordDto){
-//        try {
             userService.findPassword(findPasswordDto);
             return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("임시 비밀번호 발신 완료"));
-//        } catch (Exception e) {
-//            return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR,
-//                    ResponseDto.getInstance("등록되지 않은 이메일입니다: " + e.getMessage()));
-//        }
     }
 
     @PostMapping("/verify-email")
     @Operation(summary = "이메일 인증 요청", description = "")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "유저 이메일로 인증번호를 발신 > 로그인 페이지로 이동"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "해당 이메일로 등록되어있는 계정이 없음 > 다른 이메일 입력 필요 메시지 출력")
+    })
     public ApiResponse<Void> sendVerificationEmail(@RequestBody EmailVerificationRequestDto emailVerificationRequestDto) {
         int authNum = emailService.sendSignupEmail(emailVerificationRequestDto.getEmail());
         subRedisService.setValue(emailVerificationRequestDto.getEmail(), String.valueOf(authNum));
-//        tempServerStorage.saveVerificationCode(emailVerificationRequestDto.getEmail(), authNum);
         return new ApiResponse<>(HttpStatus.OK, null);
     }
 
     @PostMapping("/signin")
-    @Operation(summary = "로그인 요청" , description = "")
+    @Operation(summary = "로그인 요청" , description = "비밀번호 일치 확인 로직은 프론트에서 처리")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "accessToken: 엑세스 토큰 , refreshToken: 리프레쉬 토큰"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "비밀번호가 계정과 일치하지않음 > 비밀번호를 확인하세요 메시지 출력"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "해당 계정으로 가입되어있는 회원이 없음 > 아이디를 확인하세요 메시지 출력"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "유저id 암호화 실패 > 다시 로그인 시도 필요")
+    })
     public ApiResponse<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
         LoginResponseDto loginResponseDto = userService.login(loginRequestDto);
 
@@ -178,18 +191,14 @@ public class UserController {
 
     @PostMapping("/logout")
     @Operation(summary = "로그 아웃 실행", description = "")
-    public ApiResponse<ResponseDto> logOut(Authentication authentication,
-                                           HttpSession session,
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적인 로그아웃 > 로그인 페이지 혹은 메인페이지로 리다이렉트 필요")
+    })
+    public ApiResponse<ResponseDto> logOut(HttpSession session,
                                            HttpServletRequest request,
                                            HttpServletResponse response) {
-        userService.logOut(authentication, session, request, response);
+        userService.logOut(session, request, response);
         return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("로그아웃 되었습니다."));
-    }
-
-
-    @PostMapping("/test")
-    public String test() {
-        return "success";
     }
 
 
@@ -199,6 +208,10 @@ public class UserController {
         return subRedisService.getValue(dto.getEmail());}
 
     @DeleteMapping("/delete")
+    @Operation(summary = "회원탈퇴 로직", description = "정말로 탈퇴하시겠습니까? 버튼 프론트에서 생성 필요")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 탈퇴완료 > 로그인 페이지 혹은 메인페이지로 리다이렉트 필요")
+    })
     public ApiResponse<ResponseDto> deleteUser(Authentication authentication){
         userService.deleteUser(authentication);
         return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("유저삭제 완료."));

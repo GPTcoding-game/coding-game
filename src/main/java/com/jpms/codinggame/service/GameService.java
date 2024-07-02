@@ -41,7 +41,7 @@ public class GameService {
         if(!user.isDone()) return false;
 
         //참여횟수 0이면 isDone 필드값 false 로 상태변경
-        if((int) redisHashService.get(String.valueOf(user.getId()),"possibleCount") < 0) {
+        if((int) redisHashService.get(String.valueOf(user.getId()),"possibleCount") <= 0) {
             user.updateIsDone(false);
             redisHashService.put(String.valueOf(user.getId()),"possibleCount","0");
             userRepository.save(user);

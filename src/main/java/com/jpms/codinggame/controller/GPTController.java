@@ -4,6 +4,7 @@ import com.jpms.codinggame.config.GPTConfig;
 import com.jpms.codinggame.global.dto.*;
 import com.jpms.codinggame.service.GPTService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,9 @@ public class GPTController {
 
     @GetMapping("/chat")
     @Operation(summary = "문제 생성 요청" , description = "")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = " GPT로 문제 생성이 완료되었음")
+    })
     public ApiResponse<ResponseDto> generate(){
         gptService.createQuestion(model, apiURL, template);
         return new ApiResponse<>(HttpStatus.OK,ResponseDto.getInstance("문제 생성 완료"));

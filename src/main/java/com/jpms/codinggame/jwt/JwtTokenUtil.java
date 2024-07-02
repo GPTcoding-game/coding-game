@@ -7,6 +7,9 @@ import com.jpms.codinggame.exception.CustomException;
 import com.jpms.codinggame.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -76,9 +79,11 @@ public class JwtTokenUtil {
     }
 
     // 토큰을 파싱하여 암호화된 id 추출 후 복호화
-    public long getId(String token) {
+    public long getId(String token, HttpSession session, HttpServletRequest request, HttpServletResponse response)
+            throws CustomException
+    {
         String subject = jwtParser.parseClaimsJws(token).getBody().getSubject();
-        return aesUtil.decrypt(subject);
+        return aesUtil.decrypt(subject, session, request, response);
     }
 
     public Authentication getAuthentication(long userId) {

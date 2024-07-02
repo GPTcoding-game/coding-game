@@ -2,6 +2,11 @@ package com.jpms.codinggame.encrpytion;
 
 import com.jpms.codinggame.exception.CustomException;
 import com.jpms.codinggame.exception.ErrorCode;
+import com.jpms.codinggame.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +16,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
 @Component
+@AllArgsConstructor
 public class AESUtil {
 
 
@@ -18,6 +24,8 @@ public class AESUtil {
 
     @Value("${aes.secret}")
     private String aesKey;
+
+    private final UserService userService;
 
     public String encrypt(long id) throws CustomException {
         try {
@@ -39,7 +47,7 @@ public class AESUtil {
         }
     }
 
-    public long decrypt(String encryptedId) throws CustomException {
+    public long decrypt(String encryptedId, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws CustomException {
         try {
             // 복호화 키 생성
             SecretKey secretKey = new SecretKeySpec(aesKey.getBytes(), "AES");
@@ -56,6 +64,7 @@ public class AESUtil {
             String decryptedId = new String(decryptedBytes);
             return Long.parseLong(decryptedId);
         } catch (Exception e) {
+            userService.logOut(session, request, response);
             throw new CustomException(ErrorCode.DECRYPTION_FAILED);
         }
     }

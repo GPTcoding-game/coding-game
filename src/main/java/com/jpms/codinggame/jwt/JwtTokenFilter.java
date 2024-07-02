@@ -4,12 +4,15 @@ import com.jpms.codinggame.config.PermitAllEndpoint;
 import com.jpms.codinggame.exception.CustomException;
 import com.jpms.codinggame.exception.ErrorCode;
 import com.jpms.codinggame.service.RedisService;
+import com.jpms.codinggame.service.UserService;
 import jakarta.mail.Address;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -22,16 +25,14 @@ import java.util.Optional;
 
 @Component
 @Slf4j
+@AllArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final JwtTokenUtil jwtTokenUtil;
 
     private final RedisService redisService;
 
-    public JwtTokenFilter(JwtTokenUtil jwtTokenUtil, RedisService redisService) {
-        this.jwtTokenUtil = jwtTokenUtil;
-        this.redisService = redisService;
-    }
+    private final UserService userService;
 
 
     @Override
@@ -55,6 +56,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 return;
             } else {
                 // 인증이 필요한 요청인데 Authorization 헤더가 없는 경우 예외 발생
+                // 로그인에 필요한 예외처리 발생 만들기
                 System.out.println("인증이 필요한 요청에 헤더가 없음");
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "");
                 return;
@@ -66,7 +68,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             String accessToken = authHeader.split(" ")[1];
             // access 토큰 유효성 검사
             if (jwtTokenUtil.validateToken(accessToken)) {
-                userId = jwtTokenUtil.getId(accessToken);
+                userId = jwtTokenUtil.getId(accessToken, request.getSession(), request, response);
                 // 사용자 인증 설정
                 SecurityContextHolder.getContext().setAuthentication(jwtTokenUtil.getAuthentication(userId));
                 filterChain.doFilter(request, response);
@@ -77,7 +79,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         // access 토큰이 없거나 만료된 경우
         if (refreshTokenCookie.isPresent()) {
             String refreshToken = refreshTokenCookie.get().getValue();
-            userId = jwtTokenUtil.getId(refreshToken);
+            userId = jwtTokenUtil.getId(refreshToken, request.getSession(), request, response);
             String redisRefreshToken = (String) redisService.get(String.valueOf(userId), "refreshToken");
 
             // redis의 토큰과 대조
@@ -85,12 +87,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
             // refresh 토큰 유효성 검사
             if (jwtTokenUtil.validateToken(refreshToken)) {
-//                long userId;
-//                try {
-//                    userId = jwtTokenUtil.getId(refreshToken);
-//                } catch (Exception e) {
-//                    throw new RuntimeException(e);
-//                }
+
 
                 // access 토큰 발급
                 String newAccessToken = jwtTokenUtil.createToken(userId, "access");;
@@ -105,6 +102,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 return;
             }
         }
-        filterChain.doFilter(request, response);
+
+        // 모두 만료시 로그아웃
+        userService.logOut(request.getSession(), request, response);
+//        filterChain.doFilter(request, response);
     }
 }

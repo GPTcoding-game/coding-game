@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,11 +101,14 @@ public class UserService {
             throw new CustomException(ErrorCode.PASSWORD_INVALID);
 
         User user = optionalUser.get();
+        Long userId = user.getId();
 
-        String accessToken = jwtTokenUtil.createToken(user.getId(),"access");
-        String refreshToken = jwtTokenUtil.createToken(user.getId(),"refresh");
+        String accessToken = jwtTokenUtil.createToken(userId,"access");
+        String refreshToken = jwtTokenUtil.createToken(userId,"refresh");
 
-        redisService.put(String.valueOf(user.getId()), "refreshToken", refreshToken);
+        redisService.put(String.valueOf(userId), "refreshToken", refreshToken);
+
+        SecurityContextHolder.getContext().setAuthentication(jwtTokenUtil.getAuthentication(userId));
 
         return LoginResponseDto.builder()
                 .accessToken(accessToken)
@@ -276,19 +280,43 @@ public class UserService {
     }
 
 
-    public void logOut(Authentication authentication, HttpSession session, HttpServletRequest request, HttpServletResponse response) {
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        long userId = principalDetails.getId();
+//    public void logOut(Authentication authentication, HttpSession session, HttpServletRequest request, HttpServletResponse response) {
+//        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+//        long userId = principalDetails.getId();
+//
+//        // 리프레시 토큰 삭제
+//        redisService.delete(String.valueOf(userId), "refreshToken");
+//
+//        // 세션 무효화
+//        session.invalidate();
+//
+//        // 리프레시 토큰 쿠키 삭제
+//        cookieUtil.deleteCookie(request, response, "refreshToken");
+//    }
+    public void logOut(HttpSession session, HttpServletRequest request, HttpServletResponse response){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // 리프레시 토큰 삭제
-        redisService.delete(String.valueOf(userId), "refreshToken");
+        // Authentication이 null이 아닌 경우 Redis에서 토큰 삭제
+        if (authentication != null && authentication.getPrincipal() instanceof PrincipalDetails) {
+            PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+            long userId = principalDetails.getId();
+
+            // 리프레시 토큰 삭제
+            redisService.delete(String.valueOf(userId), "refreshToken");
+        }
+
+        // SecurityContext 초기화
+        SecurityContextHolder.clearContext();
 
         // 세션 무효화
         session.invalidate();
 
         // 리프레시 토큰 쿠키 삭제
         cookieUtil.deleteCookie(request, response, "refreshToken");
+
     }
+
+
     public void deleteUser(Authentication authentication){
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         Long userId = principalDetails.getUser().getId();

@@ -14,6 +14,9 @@ import com.jpms.codinggame.repository.UserRepository;
 import com.jpms.codinggame.service.RedisService;
 import com.jpms.codinggame.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -39,6 +42,10 @@ public class SDKController {
     private final RedisService redisService;
 
     @PostMapping("/{provider}")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "이메일로 이미 가입한 회원이 있을때 > 다른 이메일이 등록된 소셜 계정 사용해야함"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "소셜 로그인 제공자가 잘못되었을 때 > 다시 로그인 시도 필요")
+    })
     @Operation(summary = "소셜로그인 처리 컨트롤러", description = "제공자를 파악 한 후 알맞은 메소드 실행")
     public void socialLogin(
             @PathVariable("provider") String provider,
@@ -48,8 +55,6 @@ public class SDKController {
     ) throws GeneralSecurityException, IOException, InterruptedException {
         System.out.println("소셜로그인 실행");
         String email = null;
-//        String username = null;
-
         // 제공자 페이로드에서 계정이름 추출 시 중복의 우려가 있음으로 임의로 설정한다
         long count = userRepository.countByProvider(provider) + 1;
         String username = provider+"User"+count;
@@ -115,6 +120,10 @@ public class SDKController {
 
     @GetMapping("/add-info")
     @Operation(summary = "필수 정보 입력 컨트롤러", description = "신규유저와 기존유저를 구분하고 알맞은 값을 리턴")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "nickname: 사용자가 사용할 닉네임, address: 사용자가 사용할 주소, new: 신규가입 사용자 구분"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "세션에 등록된 id와 일치하는 유저 정보가 없음 > 다시 로그인 시도 필요")
+    })
     public ApiResponse<CompulsoryFieldResponseDto> getCompulsoryInfo(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
         CompulsoryFieldResponseDto responseDto;
@@ -140,11 +149,14 @@ public class SDKController {
 
     @PostMapping("/add-info")
     @Operation(summary = "입력받은 추가정보와 기존의 정보를 토대로 유저객체 생성", description = "")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "로그인 완료창 리다이렉션 실패")
+    })
     public void getExistingInfo (
             @RequestBody NicknameAddressDto nicknameAddressDto,
             HttpSession session,
             HttpServletResponse response
-    ) throws IOException {
+    ) {
         // 세션에서 유저정보 추출
         SessionDataDto sessionDataDto = sdkService.getSessionData(session);
 
@@ -171,16 +183,25 @@ public class SDKController {
         session.setAttribute("userId", user.getId());
 
         // 로그인 완료로 리다이렉트
-        response.sendRedirect("/auth/loginSuccess");
+        try{
+            response.sendRedirect("/auth/loginSuccess");
+        } catch (IOException e){
+            throw new CustomException(ErrorCode.REDIRECT_FAILED);
+        }
+
     }
 
     @PutMapping("/add-info")
     @Operation(summary = "소실된 필수 정보 업데이트", description = "")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "로그인 완료창 리다이렉션 실패"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "세션에 등록된 id와 일치하는 유저 정보가 없음 > 다시 로그인 시도 필요")
+    })
     public void addInfo(
             @RequestBody NicknameAddressDto nicknameAddressDto,
             HttpSession session,
             HttpServletResponse response
-    ) throws IOException {
+    ) {
         // 세션에서 id 추출
         Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
@@ -195,7 +216,11 @@ public class SDKController {
             user.addInfo(nicknameAddressDto.getNickName(), nicknameAddressDto.getAddress());
             userRepository.save(user);
             // 로그인 완료로 리다이렉트
-            response.sendRedirect("/auth/loginSuccess");
+            try{
+                response.sendRedirect("/auth/loginSuccess");
+            } catch (IOException e){
+                throw new CustomException(ErrorCode.REDIRECT_FAILED);
+            }
         } else {
             throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);
         }
@@ -204,6 +229,11 @@ public class SDKController {
 
     @GetMapping("/loginSuccess")
     @Operation(summary = "소셜 로그인 성공" , description = "")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "accessToken: 엑세스 토큰 , refreshToken: 리프레쉬 토큰"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "유저id 암호화 실패 > 다시 로그인 시도 필요")
+
+    })
     public ApiResponse<LoginResponseDto> loginSuccess(
             HttpSession session,
             HttpServletResponse response

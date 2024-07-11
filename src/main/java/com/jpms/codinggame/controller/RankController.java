@@ -30,8 +30,8 @@ public class RankController {
     @GetMapping("/rank/today")
     @Operation(summary = "오늘의 랭킹 불러오기(List)" , description = "내림차순으로 전체 List 뽑아옴. 일부 뽑아쓰기")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",description = "ff"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400",description = "aa")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",description = "정상 처리"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400",description = "쿼리 작동 불가")
     })
     public ApiResponse<List<RankResDto>> getTodayRank(){
         return new ApiResponse<>(HttpStatus.OK,rankService.getTodayRankList());
@@ -42,6 +42,10 @@ public class RankController {
     * */
     @GetMapping("/rank/all")
     @Operation(summary = "누적 점수 랭킹(List)" , description = "내림차순으로 상위 50명 List 뽑아옴. 일부 뽑아쓰기")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",description = "정상 처리"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500",description = "쿼리 작동 불가")
+    })
     public ApiResponse<List<RankResDto>> getAllDayRank(){
         return new ApiResponse<>(HttpStatus.OK,rankService.getAllDayRankList());
     }

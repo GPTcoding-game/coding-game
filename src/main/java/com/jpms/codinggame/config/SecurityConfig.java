@@ -51,7 +51,7 @@ public class SecurityConfig {
     @Bean
     public Customizer<LogoutConfigurer<HttpSecurity>> logoutConfigurerCustomizer(){
         return logout -> logout
-                .logoutUrl("/logout")
+                .logoutUrl("/users/logout")
                 .logoutSuccessHandler(customLogoutHandler);
     }
 
@@ -97,10 +97,7 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
-                .logout(logout -> logout
-                        .logoutUrl("/users/logout")
-                        .logoutSuccessHandler(customLogoutHandler)
-                )
+                .logout(logoutConfigurerCustomizer())
                 .exceptionHandling(handler -> handler.authenticationEntryPoint(authenticationEntryPoint))
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

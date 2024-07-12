@@ -293,7 +293,7 @@ public class UserService {
 //        // 리프레시 토큰 쿠키 삭제
 //        cookieUtil.deleteCookie(request, response, "refreshToken");
 //    }
-    public ApiResponse<ResponseDto> logOut(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    public void logOut(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         // Authentication이 null이 아닌 경우 Redis에서 토큰 삭제
         if (authentication != null && authentication.getPrincipal() instanceof PrincipalDetails) {
             PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
@@ -312,8 +312,6 @@ public class UserService {
         // 리프레시 토큰 쿠키 삭제
         cookieUtil.deleteCookie(request, response, "refreshToken");
 
-        // 프론트엔드로 응답
-        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("로그아웃 되었습니다."));
     }
 
 

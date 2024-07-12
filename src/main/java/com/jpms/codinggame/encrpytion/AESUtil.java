@@ -67,7 +67,6 @@ public class AESUtil {
             String decryptedId = new String(decryptedBytes);
             return Long.parseLong(decryptedId);
         } catch (Exception e) {
-//            userService.logOut(session, request, response);
             throw new CustomException(ErrorCode.DECRYPTION_FAILED);
         }
     }

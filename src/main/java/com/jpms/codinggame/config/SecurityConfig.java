@@ -48,30 +48,16 @@ public class SecurityConfig {
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
                 .requestMatchers( "/css/**", "/js/**", "/images/**");  // 필요한 경로 추가
     }
-    @Bean
-    public Customizer<LogoutConfigurer<HttpSecurity>> logoutConfigurerCustomizer(){
-        return logout -> logout
-                .logoutUrl("/users/logout")
-                .logoutSuccessHandler(customLogoutHandler);
-    }
-
-
-
-// Oauth2를 사용하지 않는테스트에는 해당 메소드 사용
 //    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//
-//        return http
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(requests -> requests
-////                        .requestMatchers("/signup", "/", "/login").permitAll()
-//                                .anyRequest().permitAll()
-//                )
-//                .successHandler(oAuth2LoginSuccessHandler)
-//                )
-//                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
-//                .build();
+//    public Customizer<LogoutConfigurer<HttpSecurity>> logoutConfigurerCustomizer(){
+//        return logout -> logout
+//                .logoutUrl("/logout")
+//                .addLogoutHandler(customLogoutHandler)
+//                .logoutSuccessUrl("users/logout");
 //    }
+
+
+
 
 
     @Bean
@@ -97,7 +83,7 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
-                .logout(logoutConfigurerCustomizer())
+//                .logout(logoutConfigurerCustomizer())
                 .exceptionHandling(handler -> handler.authenticationEntryPoint(authenticationEntryPoint))
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

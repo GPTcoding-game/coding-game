@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -115,30 +116,29 @@ public class UserController {
 
 
 
-    @PostMapping("/logout")
-    @Operation(summary = "로그 아웃 실행", description = "")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적인 로그아웃 > 로그인 페이지 혹은 메인페이지로 리다이렉트 필요")
-    })
-    public ApiResponse<ResponseDto> logOut(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        customLogoutHandler.onLogoutSuccess(request, response, authentication);
-
-        // 프론트엔드로 응답
-        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("로그아웃 되었습니다."));
-    }
-
-    //스프링 시큐리티를 사용하지 않을경우의 로그아웃 로직
 //    @PostMapping("/logout")
 //    @Operation(summary = "로그 아웃 실행", description = "")
 //    @ApiResponses(value = {
 //            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적인 로그아웃 > 로그인 페이지 혹은 메인페이지로 리다이렉트 필요")
 //    })
-//    public ApiResponse<ResponseDto> logOut(HttpSession session,
-//                                           HttpServletRequest request,
-//                                           HttpServletResponse response) {
-//        userService.logOut(session, request, response);
+//    public ApiResponse<ResponseDto> logOut(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+//
+//        // 프론트엔드로 응답
 //        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("로그아웃 되었습니다."));
 //    }
+
+    //스프링 시큐리티를 사용하지 않을경우의 로그아웃 로직
+    @PostMapping("/logout")
+    @Operation(summary = "로그 아웃 실행", description = "")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적인 로그아웃 > 로그인 페이지 혹은 메인페이지로 리다이렉트 필요")
+    })
+    public ApiResponse<ResponseDto> logOut(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           Authentication authentication) {
+        userService.logOut(request, response, authentication);
+        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("로그아웃 되었습니다."));
+    }
 
 
     @DeleteMapping("/delete")

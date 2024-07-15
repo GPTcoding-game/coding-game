@@ -16,9 +16,9 @@ import com.jpms.codinggame.jwt.JwtTokenUtil;
 import com.jpms.codinggame.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -293,9 +293,7 @@ public class UserService {
 //        // 리프레시 토큰 쿠키 삭제
 //        cookieUtil.deleteCookie(request, response, "refreshToken");
 //    }
-    public void logOut(HttpSession session, HttpServletRequest request, HttpServletResponse response){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
+    public void logOut(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         // Authentication이 null이 아닌 경우 Redis에서 토큰 삭제
         if (authentication != null && authentication.getPrincipal() instanceof PrincipalDetails) {
             PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
@@ -309,7 +307,7 @@ public class UserService {
         SecurityContextHolder.clearContext();
 
         // 세션 무효화
-        session.invalidate();
+        request.getSession().invalidate();
 
         // 리프레시 토큰 쿠키 삭제
         cookieUtil.deleteCookie(request, response, "refreshToken");

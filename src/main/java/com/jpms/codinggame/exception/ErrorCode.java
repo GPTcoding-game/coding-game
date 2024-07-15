@@ -22,7 +22,6 @@ public enum ErrorCode {
     ENCRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,"암호화에 실패하였습니다."),
     DECRYPTION_FAILED(HttpStatus.SERVICE_UNAVAILABLE,"복호화에 실패하였습니다."),
     EMPTY_NICKNAME_EXCEPTION(HttpStatus.NOT_FOUND, "닉네임을 등록해주세요."),
-
     OUT_OF_QUESTION_INDEX(HttpStatus.NOT_FOUND,"더 이상 불러올 문제가 없습니다."),
     INCORRECT_QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND,"틀린 문제가 없습니다."),
     INVALID_QUESTION_ID(HttpStatus.BAD_REQUEST,"잘못 된 접근입니다. (question ID is invalid)"),
@@ -32,6 +31,7 @@ public enum ErrorCode {
     INVALID_SESSION(HttpStatus.BAD_REQUEST,"잘못된 세션입니다"),
     REFRESH_TOKEN_MISMATCH(HttpStatus.BAD_REQUEST,"토큰에 이상이 있습니다 다시 로그인 해주세요."),
     REDIRECT_FAILED(HttpStatus.BAD_REQUEST,"리다이렉션에 실패하였습니다"),
+    TOKEN_EXPIRED(HttpStatus.NOT_IMPLEMENTED,"토큰이 전부 만료되었습니다"),
     TODAY_QUESTION_ALL_SOLVED(HttpStatus.BAD_REQUEST,"오늘 풀 문제를 모두 해결하셨습니다.");
 
 

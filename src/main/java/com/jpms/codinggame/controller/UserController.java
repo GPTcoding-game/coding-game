@@ -1,32 +1,28 @@
 package com.jpms.codinggame.controller;
 
+import com.jpms.codinggame.config.CustomLogoutHandler;
 import com.jpms.codinggame.dto.DeleteUserDto;
-import com.jpms.codinggame.entity.User;
-import com.jpms.codinggame.exception.CustomException;
-import com.jpms.codinggame.exception.ErrorCode;
 import com.jpms.codinggame.global.dto.*;
 import com.jpms.codinggame.jwt.CookieUtil;
 import com.jpms.codinggame.jwt.JwtTokenUtil;
-import com.jpms.codinggame.repository.UserRepository;
 import com.jpms.codinggame.service.EmailService;
-import com.jpms.codinggame.service.RedisService;
 import com.jpms.codinggame.service.SubRedisService;
 
 import com.jpms.codinggame.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -37,12 +33,8 @@ public class UserController {
 
     private final UserService userService;
     private final EmailService emailService;
-    private final UserRepository userRepository;
     private final SubRedisService subRedisService;
-
-    private final RedisService redisService;
-
-    private final JwtTokenUtil jwtTokenUtil;
+    private final CustomLogoutHandler customLogoutHandler;
 
     
 
@@ -122,12 +114,49 @@ public class UserController {
         return new ApiResponse<>(HttpStatus.OK, loginResponseDto);
     }
 
-//    @GetMapping("/getid")
-//    @Operation(summary = "유저 id 요청" , description = "")
-//    public String test(Authentication authentication){
-//        Long id = (Long) authentication.getPrincipal();
-//        return (String.valueOf(id));
+
+
+//    @PostMapping("/logout")
+//    @Operation(summary = "로그 아웃 실행", description = "")
+//    @ApiResponses(value = {
+//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적인 로그아웃 > 로그인 페이지 혹은 메인페이지로 리다이렉트 필요")
+//    })
+//    public ApiResponse<ResponseDto> logOut(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+//
+//        // 프론트엔드로 응답
+//        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("로그아웃 되었습니다."));
 //    }
+
+    //스프링 시큐리티를 사용하지 않을경우의 로그아웃 로직
+    @PostMapping("/logout")
+    @Operation(summary = "로그 아웃 실행", description = "")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적인 로그아웃 > 로그인 페이지 혹은 메인페이지로 리다이렉트 필요")
+    })
+    public ApiResponse<ResponseDto> logOut(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           Authentication authentication) {
+        userService.logOut(request, response, authentication);
+        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("로그아웃 되었습니다."));
+    }
+
+
+    @DeleteMapping("/delete")
+    @Operation(summary = "회원탈퇴 로직", description = "정말로 탈퇴하시겠습니까? 버튼 프론트에서 생성 필요")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 탈퇴완료 > 로그인 페이지 혹은 메인페이지로 리다이렉트 필요")
+    })
+    public ApiResponse<ResponseDto> deleteUser(Authentication authentication){
+        userService.deleteUser(authentication);
+        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("유저삭제 완료."));
+    }
+
+    // 인증 없이 스웨거로 쉽게 유저삭제 테스트를 위한 컨트롤러
+    @DeleteMapping("/swagger-delete")
+    public ApiResponse<ResponseDto> deleteUser(@RequestBody DeleteUserDto deleteUserDto){
+        userService.deleteUserWithSwagger(deleteUserDto);
+        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("유저삭제 완료."));
+    }
 
 
     /**서버에서 Oauth2 인증을 사용할 경우 사용되는 필수 정보 입력 컨트롤러 (최종본에는 SDK 인증방식으로 사용하여 사용하지 않음)**/
@@ -186,42 +215,6 @@ public class UserController {
 //
 //        return new ApiResponse<>(HttpStatus.OK, loginResponseDto);
 //    }
-
-
-    @PostMapping("/logout")
-    @Operation(summary = "로그 아웃 실행", description = "")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적인 로그아웃 > 로그인 페이지 혹은 메인페이지로 리다이렉트 필요")
-    })
-    public ApiResponse<ResponseDto> logOut(HttpSession session,
-                                           HttpServletRequest request,
-                                           HttpServletResponse response) {
-        userService.logOut(session, request, response);
-        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("로그아웃 되었습니다."));
-    }
-
-
-//    @PostMapping("/redis/test")
-//    public String testRedis(@RequestBody EmailVerificationRequestDto dto) {
-//        if(subRedisService.getValue(dto.getEmail())== null) return "null값임";
-//        return subRedisService.getValue(dto.getEmail());}
-
-    @DeleteMapping("/delete")
-    @Operation(summary = "회원탈퇴 로직", description = "정말로 탈퇴하시겠습니까? 버튼 프론트에서 생성 필요")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 탈퇴완료 > 로그인 페이지 혹은 메인페이지로 리다이렉트 필요")
-    })
-    public ApiResponse<ResponseDto> deleteUser(Authentication authentication){
-        userService.deleteUser(authentication);
-        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("유저삭제 완료."));
-    }
-
-    // 인증 없이 스웨거로 쉽게 유저삭제 테스트를 위한 컨트롤러
-    @DeleteMapping("/swagger-delete")
-    public ApiResponse<ResponseDto> deleteUser(@RequestBody DeleteUserDto deleteUserDto){
-        userService.deleteUserWithSwagger(deleteUserDto);
-        return new ApiResponse<>(HttpStatus.OK, ResponseDto.getInstance("유저삭제 완료."));
-    }
 
 
 

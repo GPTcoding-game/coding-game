@@ -104,7 +104,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
 
         // 모두 만료시 로그아웃
-        userService.logOut(request.getSession(), request, response);
+        throw new CustomException(ErrorCode.TOKEN_EXPIRED);
+//        userService.logOut(request.getSession(), request, response);
 //        filterChain.doFilter(request, response);
     }
 }

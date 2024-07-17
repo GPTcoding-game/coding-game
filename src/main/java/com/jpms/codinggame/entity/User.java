@@ -50,6 +50,9 @@ public class User {
     @Column
     private String provider;
 
+    @Column
+    private String picture;
+
 //    @Column
 //    private String providerId;
 

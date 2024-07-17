@@ -170,6 +170,7 @@ public class SDKController {
                 .role(Role.ROLE_USER)
                 .address(nicknameAddressDto.getAddress())
                 .provider(sessionDataDto.getProvider())
+                .picture("https://avatar.iran.liara.run/username?username=" + sessionDataDto.getEmail())
                 .build();
         userRepository.save(user);
 

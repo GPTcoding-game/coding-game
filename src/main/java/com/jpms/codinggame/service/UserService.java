@@ -78,6 +78,8 @@ public class UserService {
             throw new ValidationException(errorCodes);
         }
 
+
+
         // 예외가 없으면 유저 저장
         userRepository.save(User.builder()
                 .userName(signupRequestDto.getUsername())
@@ -90,6 +92,7 @@ public class UserService {
                 .role(Role.ROLE_USER)
                 .address(signupRequestDto.getAddress())
                 .provider("CodingGame")
+                .picture("https://avatar.iran.liara.run/username?username=" + signupRequestDto.getUsername())
                 .build());
     }
 

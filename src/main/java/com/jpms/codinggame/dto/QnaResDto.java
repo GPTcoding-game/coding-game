@@ -16,6 +16,7 @@ public class QnaResDto {
     private String title;
     private LocalDate time;
     private String nickname;
+    private String pictureUrl;
     private int commentVolume;
 //    private String userName;
 
@@ -28,6 +29,7 @@ public class QnaResDto {
                 .time(qna.getTime())
                 .nickname(qna.getUser().getNickName())
                 .commentVolume(qna.getCommentList().size())
+                .pictureUrl(qna.getUser().getPicture())
                 .build();
     }
 }

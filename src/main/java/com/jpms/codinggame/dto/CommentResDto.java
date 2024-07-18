@@ -14,6 +14,7 @@ public class CommentResDto {
     private Long commentId;
     private String content;
     private String nickname;
+    private String pictureUrl;
     private LocalDate time;
 
     static CommentResDto fromEntity(Comment comment){

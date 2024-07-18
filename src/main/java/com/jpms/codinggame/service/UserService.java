@@ -236,6 +236,7 @@ public class UserService {
                 .allDayRank(allDayRank)
                 .possibleCount(String.valueOf(redisService.getPossibleCount(user)))
                 .todayScore(String.valueOf(redisService.getTodayScore(user)))
+                .pictureUrl(user.getPicture())
                 .build();
     }
 

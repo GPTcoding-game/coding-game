@@ -56,6 +56,7 @@ public class CommentService {
                         .content(comment.getContent())
                         .nickname(comment.getUser().getNickName())
                         .time(LocalDate.now())
+                        .pictureUrl(comment.getUser().getPicture())
                         .build())
                 .collect(Collectors.toList());
     }

@@ -93,6 +93,7 @@ public class UserService {
                 .address(signupRequestDto.getAddress())
                 .provider("CodingGame")
                 .picture("https://avatar.iran.liara.run/username?username=" + signupRequestDto.getUsername())
+                .isDeleted(false)
                 .build());
     }
 
@@ -328,7 +329,11 @@ public class UserService {
         log.info(deleteUserDto.getEmail());
         Optional<User> optionalUser = userRepository.findByEmail(deleteUserDto.getEmail());
         User user = optionalUser.get();
-        userRepository.deleteById(user.getId());
+        Long userId = user.getId();
+        userRepository.deleteById(userId);
+
+//        user.deleteUser(true);
+//        userRepository.save(user);
     }
 
 

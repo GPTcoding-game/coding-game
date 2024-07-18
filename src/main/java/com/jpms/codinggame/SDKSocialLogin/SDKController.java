@@ -171,6 +171,7 @@ public class SDKController {
                 .address(nicknameAddressDto.getAddress())
                 .provider(sessionDataDto.getProvider())
                 .picture("https://avatar.iran.liara.run/username?username=" + sessionDataDto.getEmail())
+                .isDeleted(false)
                 .build();
         userRepository.save(user);
 

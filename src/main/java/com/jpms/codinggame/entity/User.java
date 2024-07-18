@@ -3,24 +3,30 @@ package com.jpms.codinggame.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.Where;
 
 import java.util.List;
 
 @Getter
 @Entity
 @Table(name = "User")
+@SQLRestriction("is_deleted = false")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@SQLDelete(sql = "UPDATE User SET is_deleted = true where id = ?")
+
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+//    @Column(unique = true)
     private String userName;
 
-    @Column(unique = true)
+//    @Column(unique = true)
     private String nickName;
 
     @Column
@@ -31,7 +37,7 @@ public class User {
     @Column
     private String password;
 
-    @Column(unique = true , nullable = true)
+//    @Column(unique = true , nullable = true)
     private String email;
 
     @Column //누적점수
@@ -52,6 +58,9 @@ public class User {
 
     @Column
     private String picture;
+
+    @Column
+    private boolean isDeleted;
 
 //    @Column
 //    private String providerId;
@@ -90,4 +99,8 @@ public class User {
     }
 
     public void addInfo(String nickName, String address){ this.nickName = nickName; this.address = address;}
+
+    public void deleteUser(boolean isDeleted){
+        this.isDeleted =isDeleted;
+    }
 }

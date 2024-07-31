@@ -8,6 +8,7 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.Where;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Entity
@@ -71,7 +72,12 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Comment> commentList;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @ManyToMany
+    @JoinTable(
+            name = "incorrect_question",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "question_id")
+    )
     private List<Question> questionList;
 
     public void updateQuestionList(List<Question> questionList){

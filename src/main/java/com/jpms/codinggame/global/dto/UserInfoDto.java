@@ -22,4 +22,6 @@ public class UserInfoDto {
     private String address;
 
     private int todayRank;
+
+    private String picture;
 }

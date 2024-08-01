@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -53,7 +54,7 @@ public class SDKController {
             @RequestBody SocialLoginRequestDto socialLoginRequestDto,
             HttpServletResponse response,
             HttpSession session
-    ) throws GeneralSecurityException, IOException, InterruptedException {
+    ) throws Exception {
         System.out.println("소셜로그인 실행");
         String email = null;
         // 제공자 페이로드에서 계정이름 추출 시 중복의 우려가 있음으로 임의로 설정한다
@@ -75,8 +76,10 @@ public class SDKController {
                 break;
 
             case "apple":
-                // 애플 소셜로그인 처리 로직
+                Map<String, Object> applePayload = sdkService.verifyAppleToken(socialLoginRequestDto.getToken());
+                email = (String) applePayload.get("email");
                 break;
+
 
             default:
                 throw new CustomException(ErrorCode.INVALID_PROVIDER);

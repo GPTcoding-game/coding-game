@@ -209,6 +209,7 @@ public class UserService {
                 .tier(user.getTier())
                 .address(user.getAddress())
                 .todayRank(rankService.getMyTodayRank(user))
+                .picture(user.getPicture())
                 .build();
     }
 

@@ -13,5 +13,6 @@ public class MainInfoResDto {
     private String allDayRank;
     private String todayScore;
     private String possibleCount;
+    private String pictureUrl;
 
 }

@@ -8,10 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -33,8 +30,10 @@ public class RankService {
             Object scoreObj = redisService.get(key,"score");
             Object nicknameObj = redisService.get(key,"nickname");
             RankResDto rankResDto = new RankResDto();
-
+            Optional<User> optionalUser = userRepository.findByNickName((String)nicknameObj);
+            User user = optionalUser.get();
             rankResDto.setNickname((String) nicknameObj);
+            rankResDto.setPictureUrl(user.getPicture());
             rankResDto.setScore((int) scoreObj);
 
             rankList.add(rankResDto);

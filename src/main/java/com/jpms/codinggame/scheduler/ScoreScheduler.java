@@ -4,6 +4,7 @@ import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.repository.UserRepository;
 import com.jpms.codinggame.service.RankService;
 import com.jpms.codinggame.service.RedisService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -37,9 +38,7 @@ public class ScoreScheduler {
 
             //DB 에 당일 점수 update
             User user = optionalUser.get();
-            user.updateTier(rankService.getUserTier(user));
-            user.updateTotalScore(user.getTotalScore() + todayScore);
-            userRepository.save(user);
+            updateTierAndScoreTransaction(todayScore, user);
 
             //당일 점수 REDIS 에서 삭제
             redisService.delete(key,"score");
@@ -67,14 +66,25 @@ public class ScoreScheduler {
             }
 
             User user = optionalUser.get();
-            user.updateIsDone(true);
-            userRepository.save(user);
+            updateIsDoneTransaction(user);
             //참여횟수 3으로 설정
 
 
             //redis 값 삭제
             redisService.delete(key);
         }
+    }
+    @Transactional
+    public void updateTierAndScoreTransaction(int todayScore, User user){
+        user.updateTier(rankService.getUserTier(user));
+        user.updateTotalScore(user.getTotalScore() + todayScore);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateIsDoneTransaction(User user){
+        user.updateIsDone(true);
+        userRepository.save(user);
     }
 
 }

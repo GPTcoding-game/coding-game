@@ -14,8 +14,6 @@ import com.jpms.codinggame.repository.UserRepository;
 import com.jpms.codinggame.service.RedisService;
 import com.jpms.codinggame.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,7 +36,7 @@ import java.util.Optional;
 public class SDKController {
 
     private final SDKService sdkService;
-    private final UserService userService;
+//    private final UserService userService;
     private final UserRepository userRepository;
     private final JwtTokenUtil jwtTokenUtil;
     private final RedisService redisService;
@@ -175,6 +173,8 @@ public class SDKController {
                 .role(Role.ROLE_USER)
                 .address(nicknameAddressDto.getAddress())
                 .provider(sessionDataDto.getProvider())
+                .picture("https://avatar.iran.liara.run/username?username=" + sessionDataDto.getEmail())
+                .isDeleted(false)
                 .build();
         userRepository.save(user);
 

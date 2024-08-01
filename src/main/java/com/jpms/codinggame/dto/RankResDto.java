@@ -9,5 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 public class RankResDto {
     private String nickname;
+    private String pictureUrl;
     private int score;
 }

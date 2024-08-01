@@ -10,11 +10,13 @@ import org.hibernate.annotations.Bag;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -34,6 +36,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomLogoutHandler customLogoutHandler;
     @Bean
     public static BCryptPasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder();
@@ -45,23 +48,16 @@ public class SecurityConfig {
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
                 .requestMatchers( "/css/**", "/js/**", "/images/**");  // 필요한 경로 추가
     }
-
-
-// Oauth2를 사용하지 않는테스트에는 해당 메소드 사용
 //    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//
-//        return http
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(requests -> requests
-////                        .requestMatchers("/signup", "/", "/login").permitAll()
-//                                .anyRequest().permitAll()
-//                )
-//                .successHandler(oAuth2LoginSuccessHandler)
-//                )
-//                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
-//                .build();
+//    public Customizer<LogoutConfigurer<HttpSecurity>> logoutConfigurerCustomizer(){
+//        return logout -> logout
+//                .logoutUrl("/logout")
+//                .addLogoutHandler(customLogoutHandler)
+//                .logoutSuccessUrl("users/logout");
 //    }
+
+
+
 
 
     @Bean
@@ -87,6 +83,7 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
+//                .logout(logoutConfigurerCustomizer())
                 .exceptionHandling(handler -> handler.authenticationEntryPoint(authenticationEntryPoint))
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

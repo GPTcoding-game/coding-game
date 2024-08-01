@@ -12,6 +12,8 @@ import com.jpms.codinggame.entity.User;
 import com.jpms.codinggame.exception.CustomException;
 import com.jpms.codinggame.exception.ErrorCode;
 import com.jpms.codinggame.global.dto.SessionDataDto;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.Map;
 
 @Service
 public class SDKService {
@@ -63,6 +66,12 @@ public class SDKService {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readTree(response.body());
+    }
+
+    public Map<String, Object> verifyAppleToken(String idToken) throws Exception {
+        SignedJWT signedJWT = AppleUtils.verifyAppleToken(idToken);
+        JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+        return claims.getClaims();
     }
 
 
